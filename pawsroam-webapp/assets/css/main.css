@@ -1,0 +1,635 @@
+/*
+    PawsRoam - Main Stylesheet
+    Version: 1.0.0
+*/
+
+/* -------------------------------------------------------------------------- */
+/*                                  VARIABLES                                 */
+/* -------------------------------------------------------------------------- */
+:root {
+    /* Color Palette (as provided) */
+    --primary-orange: #FF6B35;
+    --primary-green: #2ECC71;
+    --primary-blue: #3498DB;
+    --accent-yellow: #F1C40F;
+    --neutral-gray: #95A5A6;
+    --light-gray: #ECF0F1;
+    --dark-gray: #7F8C8D;
+
+    --text-dark: #2C3E50;
+    --text-light: #ECF0F1; /* Corrected from problem description to match common usage for light text on dark bg */
+    --text-muted: #566573;
+
+    --background-light: #FAFAFA;
+    --background-dark: #34495E;
+    --surface-light: #FFFFFF;
+    --surface-dark: #4A6572;
+
+    --success: #27AE60;
+    --warning: #E67E22;
+    --error: #E74C3C;
+    --info: #2980B9;
+
+    /* RGB versions for rgba() usage */
+    --primary-blue-rgb: 52, 152, 219;
+    --primary-orange-rgb: 255, 107, 53;
+
+
+    /* Typography (Font stack from problem description) */
+    --font-primary:
+        'Inter', 'Segoe UI', /* English */
+        'Hiragino Sans', 'Yu Gothic', 'Meiryo', /* Japanese */
+        'Microsoft JhengHei', 'PingFang TC', 'Heiti TC', /* Traditional Chinese */
+        -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-secondary: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Fallback */
+
+    --line-height-base: 1.6;
+    --line-height-heading: 1.3;
+
+    /* Spacing & Sizing */
+    --spacing-unit: 8px;
+    --spacing-xs: calc(var(--spacing-unit) * 0.5);  /* 4px */
+    --spacing-sm: var(--spacing-unit);             /* 8px */
+    --spacing-md: calc(var(--spacing-unit) * 2);   /* 16px */
+    --spacing-lg: calc(var(--spacing-unit) * 3);   /* 24px */
+    --spacing-xl: calc(var(--spacing-unit) * 4);   /* 32px */
+    --spacing-xxl: calc(var(--spacing-unit) * 6);  /* 48px */
+
+    /* Borders & Shadows */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 16px;
+    --border-color: var(--neutral-gray);
+    --box-shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.16);
+    --box-shadow-md: 0 3px 6px rgba(0,0,0,0.12), 0 3px 6px rgba(0,0,0,0.18);
+    --box-shadow-lg: 0 10px 20px rgba(0,0,0,0.15), 0 6px 6px rgba(0,0,0,0.19);
+
+    /* Transitions */
+    --transition-fast: all 0.15s ease-in-out;
+    --transition-normal: all 0.3s ease-in-out;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                GLOBAL RESETS & DEFAULTS                    */
+/* -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 100%; /* Usually 16px by default */
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    font-family: var(--font-primary);
+    line-height: var(--line-height-base);
+    color: var(--text-dark);
+    background-color: var(--background-light);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden; /* Prevent horizontal scrollbars from minor overflows */
+}
+
+main {
+    flex-grow: 1;
+    width: 100%;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                  TYPOGRAPHY                                */
+/* -------------------------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-primary);
+    line-height: var(--line-height-heading);
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* Using responsive font sizes from problem description */
+h1, .text-3xl { font-size: 1.875rem; } /* 30px */
+h2, .text-2xl { font-size: 1.5rem; }    /* 24px */
+h3, .text-xl { font-size: 1.25rem; }   /* 20px */
+h4, .text-lg { font-size: 1.125rem; }  /* 18px */
+h5, .text-base { font-size: 1rem; }     /* 16px - also body text size */
+h6, .text-sm { font-size: 0.875rem; }   /* 14px */
+.text-xs { font-size: 0.75rem; }    /* 12px */
+
+
+@media (min-width: 768px) { /* Larger screens can have larger headings */
+    h1, .text-3xl { font-size: 2.5rem; }   /* 40px */
+    h2, .text-2xl { font-size: 2rem; }     /* 32px */
+    h3, .text-xl { font-size: 1.75rem; }  /* 28px */
+    h4, .text-lg { font-size: 1.5rem; }   /* 24px */
+    h5, .text-base { font-size: 1.125rem; } /* Slightly larger base on desktop */
+    /* h6 and text-sm, text-xs remain same or adjust if needed */
+}
+
+
+p {
+    margin-bottom: var(--spacing-md);
+}
+
+a {
+    color: var(--primary-orange);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+a:hover, a:focus {
+    color: #D95A2B; /* Darker orange: var(--primary-orange) darkened by ~10% */
+    text-decoration: underline;
+}
+a:focus-visible {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-sm);
+}
+
+
+strong, b { font-weight: 700; }
+em, i { font-style: italic; }
+small { font-size: 0.875em; }
+
+ul, ol {
+    margin-bottom: var(--spacing-md);
+    padding-left: var(--spacing-lg);
+}
+li {
+    margin-bottom: var(--spacing-sm);
+}
+
+blockquote {
+    margin: var(--spacing-md) 0;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-left: 4px solid var(--primary-green);
+    background-color: var(--light-gray);
+    font-style: italic;
+    color: var(--text-muted);
+}
+
+code, pre {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    background-color: var(--light-gray);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9em;
+    border: 1px solid var(--neutral-gray);
+}
+pre {
+    overflow-x: auto;
+    padding: var(--spacing-md);
+    white-space: pre-wrap; /* Allow wrapping of long lines */
+    word-break: break-all; /* Break long words if necessary */
+}
+
+/* Text alignment */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-justify { text-align: justify; }
+
+/* Text colors */
+.text-primary { color: var(--primary-orange); } /* Renamed for consistency */
+.text-secondary { color: var(--primary-green); } /* Renamed for consistency */
+.text-accent { color: var(--accent-yellow); }
+/* ... other color utilities from previous version ... */
+.text-white { color: var(--text-light); } /* Common utility */
+.text-black { color: var(--text-dark); } /* Common utility */
+
+
+/* -------------------------------------------------------------------------- */
+/*                                 LAYOUT & GRID                             */
+/* -------------------------------------------------------------------------- */
+.container {
+    width: 90%;
+    max-width: 1280px; /* Increased max-width for modern screens */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+}
+.container-fluid {
+    width: 100%;
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+}
+
+/* Basic Flexbox utilities */
+.d-flex { display: flex !important; }
+.d-inline-flex { display: inline-flex !important; }
+.flex-column { flex-direction: column !important; }
+.flex-row { flex-direction: row !important; }
+.justify-content-start { justify-content: flex-start !important; }
+.justify-content-end { justify-content: flex-end !important; }
+.justify-content-center { justify-content: center !important; }
+.justify-content-between { justify-content: space-between !important; }
+.justify-content-around { justify-content: space-around !important; }
+.align-items-start { align-items: flex-start !important; }
+.align-items-end { align-items: flex-end !important; }
+.align-items-center { align-items: center !important; }
+.align-items-baseline { align-items: baseline !important; }
+.align-items-stretch { align-items: stretch !important; }
+.flex-wrap { flex-wrap: wrap !important; }
+.flex-nowrap { flex-wrap: nowrap !important; }
+.flex-grow-1 { flex-grow: 1 !important; }
+.flex-shrink-0 { flex-shrink: 0 !important; }
+
+/* Basic Grid - more may be needed in components.css or responsive.css */
+.grid {
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 UI COMPONENTS                              */
+/* -------------------------------------------------------------------------- */
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    font-family: var(--font-primary);
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: calc(var(--spacing-sm) + 2px) var(--spacing-lg); /* Slightly taller buttons: 10px 24px */
+    font-size: 0.9375rem; /* 15px */
+    line-height: var(--line-height-base);
+    border-radius: var(--border-radius-md);
+    transition: var(--transition-normal);
+    text-decoration: none;
+}
+.btn:hover {
+    text-decoration: none;
+}
+.btn:focus, .btn.focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-blue-rgb), 0.35);
+}
+.btn:active, .btn.active {
+    filter: brightness(0.9);
+}
+.btn:disabled, .btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(50%);
+}
+
+.btn-primary {
+    color: var(--text-light);
+    background-color: var(--primary-orange);
+    border-color: var(--primary-orange);
+}
+.btn-primary:hover {
+    background-color: #E05A25; /* Darker orange */
+    border-color: #D95A2B;
+}
+
+.btn-secondary {
+    color: var(--text-light);
+    background-color: var(--primary-green);
+    border-color: var(--primary-green);
+}
+.btn-secondary:hover {
+    background-color: #28B463; /* Darker green */
+    border-color: #25A25A;
+}
+
+.btn-outline-primary {
+    color: var(--primary-orange);
+    border-color: var(--primary-orange);
+}
+.btn-outline-primary:hover {
+    color: var(--text-light);
+    background-color: var(--primary-orange);
+}
+/* Add more button types: .btn-success, .btn-danger, .btn-link, .btn-sm, .btn-lg */
+
+/* Forms */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+.form-label {
+    display: inline-block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 500;
+    color: var(--text-dark);
+}
+.form-control, select.form-control, textarea.form-control {
+    display: block;
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 1rem;
+    font-family: var(--font-primary);
+    line-height: var(--line-height-base);
+    color: var(--text-dark);
+    background-color: var(--surface-light);
+    background-clip: padding-box;
+    border: 1px solid var(--neutral-gray);
+    border-radius: var(--border-radius-md);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.form-control:focus {
+    border-color: var(--primary-blue);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-blue-rgb), 0.25);
+}
+.form-control::placeholder {
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+textarea.form-control {
+    min-height: 80px;
+    resize: vertical;
+}
+.form-control.is-invalid, .was-validated .form-control:invalid {
+    border-color: var(--error);
+    padding-right: calc(1.5em + 0.75rem); /* Space for icon if added */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23E74C3C'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23E74C3C' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right calc(0.375em + 0.1875rem) center;
+    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+.form-control.is-invalid:focus, .was-validated .form-control:invalid:focus {
+    border-color: var(--error);
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25); /* Error color shadow */
+}
+.invalid-feedback { display: none; width: 100%; margin-top: .25rem; font-size: .875em; color: var(--error); }
+.is-invalid ~ .invalid-feedback, .was-validated :invalid ~ .invalid-feedback { display: block; }
+
+
+/* Cards */
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: var(--surface-light);
+    background-clip: border-box;
+    border: 1px solid var(--light-gray); /* Softer border */
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--box-shadow-md); /* Slightly more prominent shadow */
+    margin-bottom: var(--spacing-lg);
+    overflow: hidden; /* Ensure child elements respect border-radius */
+}
+.card-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    margin-bottom: 0;
+    background-color: var(--surface-light); /* Cleaner look */
+    border-bottom: 1px solid var(--light-gray);
+    font-weight: 600;
+}
+.card-body {
+    flex: 1 1 auto;
+    padding: var(--spacing-lg);
+}
+.card-footer {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--background-light); /* Match body bg for footer */
+    border-top: 1px solid var(--light-gray);
+}
+.card-title { margin-bottom: var(--spacing-sm); font-size: 1.375rem; } /* Adjusted size */
+.card-subtitle { margin-top: calc(-1 * var(--spacing-sm) / 2); margin-bottom: var(--spacing-sm); color: var(--text-muted); }
+.card-text:last-child { margin-bottom: 0; }
+
+
+/* Alerts */
+.alert {
+    position: relative;
+    padding: var(--spacing-md) var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    border: 1px solid transparent;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--box-shadow-sm);
+}
+.alert-success { color: #1B5E20; background-color: #C8E6C9; border-color: #A5D6A7; }
+.alert-warning { color: #E65100; background-color: #FFECB3; border-color: #FFE082; }
+.alert-error { color: #B71C1C; background-color: #FFCDD2; border-color: #EF9A9A; }
+.alert-info { color: #0D47A1; background-color: #BBDEFB; border-color: #90CAF9; }
+
+
+/* -------------------------------------------------------------------------- */
+/*                                  UTILITIES                                 */
+/* -------------------------------------------------------------------------- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+.sr-only-focusable:active, .sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+    display: block; /* Remove bottom space */
+}
+.img-thumbnail {
+    padding: var(--spacing-xs);
+    background-color: var(--surface-light);
+    border: 1px solid var(--neutral-gray);
+    border-radius: var(--border-radius-sm);
+    max-width: 100%;
+    height: auto;
+    box-shadow: var(--box-shadow-sm);
+}
+
+/* Spacing utilities (margin, padding) - more comprehensive */
+.m-0 { margin: 0 !important; } .mt-0 { margin-top: 0 !important; } /* ...and so on for all directions and sizes */
+.p-0 { padding: 0 !important; } .pt-0 { padding-top: 0 !important; } /* ...and so on */
+/* Example for size 1 (sm) */
+.m-1 { margin: var(--spacing-sm) !important; }
+.mt-1 { margin-top: var(--spacing-sm) !important; }
+.mr-1 { margin-right: var(--spacing-sm) !important; }
+.mb-1 { margin-bottom: var(--spacing-sm) !important; }
+.ml-1 { margin-left: var(--spacing-sm) !important; }
+.mx-1 { margin-left: var(--spacing-sm) !important; margin-right: var(--spacing-sm) !important; }
+.my-1 { margin-top: var(--spacing-sm) !important; margin-bottom: var(--spacing-sm) !important; }
+/* Repeat for p-1, and for sizes 2 (md), 3 (lg), 4 (xl), 5 (xxl), auto */
+
+
+/* Visibility */
+.d-none { display: none !important; } /* More common than .hidden */
+.d-block { display: block !important; }
+.d-inline { display: inline !important; }
+.d-inline-block { display: inline-block !important; }
+.invisible { visibility: hidden !important; }
+
+
+/* -------------------------------------------------------------------------- */
+/*                              ACCESSIBILITY                                 */
+/* -------------------------------------------------------------------------- */
+.skip-link {
+    position: absolute;
+    top: -999px;
+    left: var(--spacing-md);
+    background-color: var(--primary-blue);
+    color: var(--text-light);
+    padding: var(--spacing-md) var(--spacing-lg);
+    z-index: 9999;
+    text-decoration: none;
+    border-radius: 0 0 var(--border-radius-md) 0;
+    box-shadow: var(--box-shadow-md);
+    font-weight: 600;
+}
+.skip-link:focus {
+    top: var(--spacing-md);
+}
+
+
+/* -------------------------------------------------------------------------- */
+/*                                 PRINT STYLES                               */
+/* -------------------------------------------------------------------------- */
+@media print {
+    body {
+        background-color: #fff !important; /* Ensure white background */
+        color: #000 !important; /* Ensure black text */
+        font-size: 11pt;
+        line-height: 1.4;
+    }
+    a { text-decoration: underline !important; color: #000 !important; }
+    a[href^="http"]:after { content: " (" attr(href) ")"; font-size: 90%; } /* Show URLs for external links */
+    a[href^="/"]:after { content: " (pawsroam.com" attr(href) ")"; font-size: 90%; } /* Show internal paths */
+
+
+    .no-print, nav, footer, .btn, aside, .sidebar, .ad-banner /* More elements to hide */ {
+        display: none !important;
+    }
+    .container, .container-fluid { max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
+    .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+    img { max-width: 100% !important; page-break-inside: avoid; }
+    h1, h2, h3 { page-break-after: avoid; }
+    table, figure { page-break-inside: avoid; }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                         PawsRoam Specific Styles                           */
+/* -------------------------------------------------------------------------- */
+#main-header {
+    background-color: var(--surface-light);
+    padding: var(--spacing-sm) 0; /* Reduced padding */
+    box-shadow: var(--box-shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 1020; /* Bootstrap's standard for fixed navbar */
+    border-bottom: 1px solid var(--light-gray);
+}
+#main-footer {
+    background-color: var(--text-dark);
+    color: var(--light-gray);
+    padding: var(--spacing-xl) 0; /* Increased padding */
+    margin-top: var(--spacing-xxl);
+    text-align: center;
+    font-size: var(--text-sm);
+}
+#main-footer a {
+    color: var(--primary-orange);
+    font-weight: 500;
+}
+#main-footer a:hover {
+    color: var(--accent-yellow);
+}
+
+/* Map specific styles */
+#map-container { /* A wrapper for the map if needed for styling or aspect ratio */
+    position: relative;
+    width: 100%;
+    margin-bottom: var(--spacing-lg);
+}
+#map {
+    width: 100%;
+    min-height: 300px; /* Minimum height on mobile */
+    height: 60vh; /* Viewport height based, adjust as needed */
+    max-height: 700px; /* Max height on large screens */
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius-lg); /* Larger radius */
+    border: 1px solid var(--neutral-gray);
+    box-shadow: var(--box-shadow-lg); /* More prominent shadow */
+}
+
+.pawsroam-infowindow h3 { /* Target h3 as used in maps.js */
+    color: var(--primary-orange) !important;
+    font-weight: 600;
+    font-size: 1.1em !important; /* Ensure consistency */
+    margin-bottom: var(--spacing-xs) !important;
+}
+.pawsroam-infowindow p {
+    font-size: 0.9em !important;
+    margin-bottom: var(--spacing-xs) !important;
+    line-height: 1.4 !important;
+}
+.pawsroam-infowindow a {
+    font-weight: 600;
+}
+
+/* Loading spinner example */
+.loader {
+    border: 4px solid var(--light-gray);
+    border-top: 4px solid var(--primary-blue);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: var(--spacing-lg) auto;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Multi-language text expansion considerations: */
+/* Elements like buttons, nav items, labels should use padding and allow natural width. */
+/* Avoid fixed widths on text containers where possible. Use min-width if necessary. */
+/* Test with Japanese/Chinese strings which can be ~1.5-2x longer than English for the same meaning. */
+/* E.g., a button: */
+.btn-i18n {
+    padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
+    white-space: nowrap; /* Prevent wrapping if desired, but ensure container can grow */
+}
+
+/* Darken/Lighten CSS filter alternative (use sparingly, affects text too) */
+/* .darken-filter { filter: brightness(0.85); } */
+/* .lighten-filter { filter: brightness(1.15); } */
+
+/* Ensure high contrast for text and UI elements for WCAG AA */
+/* Example: Text on var(--primary-orange) should be var(--text-light) or a very dark color */
+/* Check contrasts using an online tool. */
+/* For example, var(--primary-orange) on var(--background-light) is fine for text. */
+/* var(--text-light) on var(--primary-orange) needs checking. #FF6B35 vs #ECF0F1 = 3.03:1 (Fail for normal text, pass for large) */
+/* Use a darker text on orange or lighter orange for text backgrounds if needed. */
+/* For now, assuming var(--text-light) on buttons is okay as they are large targets. */
+
+/* Sticky footer support (if not using flexbox for body/main) */
+/* html, body { height: 100%; } */
+/* body { display: flex; flex-direction: column; } */
+/* main { flex: 1 0 auto; } */
+/* #main-footer { flex-shrink: 0; } */
+/* This is already handled by the flexbox setup on body/main. */

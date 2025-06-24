@@ -1,0 +1,50 @@
+{
+  "name": "pawsroam-webapp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PawsRoam - Pet-Friendly Discovery Platform Frontend Assets",
+  "main": "assets/js/app.js",
+  "scripts": {
+    "test": "echo \"Info: No frontend tests specified yet\" && exit 0",
+    "dev": "echo \"Info: No frontend dev server. Run your PHP server.\"",
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "echo \"Info: CSS processing (e.g., PostCSS, Sass) not yet configured. Using static CSS.\"",
+    "build:js": "echo \"Info: JS bundling/minification (e.g., Webpack, esbuild) not yet configured. Using static JS.\"",
+    "lint": "npm run lint:css && npm run lint:js",
+    "lint:css": "echo \"Info: CSS linting (e.g., Stylelint) not yet configured.\"",
+    "lint:js": "echo \"Info: JavaScript linting (e.g., ESLint) not yet configured.\"",
+    "format": "echo \"Info: Code formatting (e.g., Prettier) not yet configured.\"",
+    "serve": "php -S localhost:8000 -t ./ "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/USERNAME/REPOSITORY.git"
+  },
+  "keywords": [
+    "pets",
+    "travel",
+    "maps",
+    "community",
+    "php",
+    "javascript",
+    "pwa"
+  ],
+  "author": "PawsRoam Development Team <dev@pawsroam.com> (https://pawsroam.com)",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/USERNAME/REPOSITORY/issues"
+  },
+  "homepage": "https://github.com/USERNAME/REPOSITORY#readme",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "stylelint": "^15.0.0",
+    "prettier": "^3.0.0"
+  },
+  "dependencies": {
+    "normalize.css": "^8.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
