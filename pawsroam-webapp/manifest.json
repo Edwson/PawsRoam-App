@@ -1,0 +1,140 @@
+{
+    "name": "PawsRoam - Pet-Friendly Discovery Platform",
+    "short_name": "PawsRoam",
+    "description": "Discover pet-friendly venues, services, and connect with a global community of pet lovers. Your ultimate companion for adventures with your furry friends.",
+    "start_url": "/index.php?utm_source=homescreen",
+    "display": "standalone",
+    "theme_color": "#FF6B35",
+    "background_color": "#FAFAFA",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "en",
+    "dir": "ltr",
+    "icons": [
+        {
+            "src": "/assets/images/icons/icon-72x72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/images/icons/icon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/images/icons/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/images/icons/icon-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/images/icons/icon-152x152.png",
+            "sizes": "152x152",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/images/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/assets/images/icons/icon-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/images/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/assets/images/screenshots/screenshot1_mobile.jpg",
+            "sizes": "540x720",
+            "type": "image/jpeg",
+            "form_factor": "narrow",
+            "label": "PawsRoam Main Map View - Discover pet-friendly places"
+        },
+        {
+            "src": "/assets/images/screenshots/screenshot2_desktop.jpg",
+            "sizes": "1280x720",
+            "type": "image/jpeg",
+            "form_factor": "wide",
+            "label": "PawsRoam Business Profile - Detailed information and reviews"
+        }
+    ],
+    "categories": [
+        "pets",
+        "travel",
+        "lifestyle",
+        "social",
+        "maps",
+        "navigation",
+        "food",
+        "shopping"
+    ],
+    "prefer_related_applications": false,
+    "shortcuts": [
+        {
+            "name": "Search Nearby Pet Places",
+            "short_name": "Search Nearby",
+            "description": "Find pet-friendly restaurants, parks, and services near you",
+            "url": "/pages/search.php?action=nearby&source=shortcut",
+            "icons": [{ "src": "/assets/images/icons/shortcut_search_96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" }]
+        },
+        {
+            "name": "My Pet's Profile",
+            "short_name": "My Pet",
+            "description": "Access and manage your pet's information and health records",
+            "url": "/pages/pet-profile.php?source=shortcut",
+            "icons": [{ "src": "/assets/images/icons/shortcut_pet_96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" }]
+        },
+        {
+            "name": "PawsConnect Community",
+            "short_name": "Community",
+            "description": "Join discussions and connect with other pet owners",
+            "url": "/pages/pawsconnect.php?source=shortcut",
+            "icons": [{ "src": "/assets/images/icons/shortcut_community_96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" }]
+        }
+    ],
+    "related_applications": [],
+    "display_override": [
+        "standalone",
+        "minimal-ui"
+    ],
+    "protocol_handlers": [
+        {
+            "protocol": "web+pawsroam",
+            "url": "/handle_protocol?type=%s"
+        }
+    ],
+    "share_target": {
+        "action": "/share_handler.php",
+        "method": "POST",
+        "enctype": "multipart/form-data",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url",
+            "files": [
+                {
+                    "name": "shared_files",
+                    "accept": ["image/*", "video/*"]
+                }
+            ]
+        }
+    }
+}
