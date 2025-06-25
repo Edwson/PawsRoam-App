@@ -189,3 +189,58 @@ CREATE INDEX idx_forum_topics_category_updated ON forum_topics(category_id, upda
 CREATE INDEX idx_forum_posts_topic_created ON forum_posts(topic_id, created_at ASC);
 CREATE INDEX idx_forum_posts_user ON forum_posts(user_id);
 CREATE INDEX idx_forum_topics_user ON forum_topics(user_id);
+
+-- PawsCoupon System Tables
+
+CREATE TABLE coupons (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    business_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL, -- Translatable (use translations table: translatable_type='coupon', translatable_id=id, field_name='title')
+    description TEXT NULL, -- Translatable (use translations table: translatable_type='coupon', translatable_id=id, field_name='description')
+    code VARCHAR(50) NULL UNIQUE, -- e.g., "SAVE10", "SUMMERFUN"
+    discount_type ENUM('percentage', 'fixed_amount', 'free_item', 'service_upgrade') NOT NULL,
+    discount_value VARCHAR(255) NOT NULL COMMENT 'e.g., 10.00 (for percentage), 5.00 (for fixed amount), or internal item/service ID/name',
+    item_name_if_free VARCHAR(255) NULL DEFAULT NULL COMMENT 'Specific item name if discount_type is free_item',
+    service_upgrade_details TEXT NULL DEFAULT NULL COMMENT 'Details if discount_type is service_upgrade',
+    start_date DATETIME NOT NULL,
+    end_date DATETIME NOT NULL,
+    usage_limit_total INT NULL DEFAULT NULL COMMENT 'Maximum total redemptions allowed for this coupon',
+    usage_limit_per_user INT NULL DEFAULT 1 COMMENT 'Maximum redemptions allowed per user (e.g., 1)',
+    current_redemptions INT DEFAULT 0,
+    min_spend_amount DECIMAL(10,2) NULL DEFAULT NULL COMMENT 'Minimum purchase amount to qualify for the coupon',
+    applicable_pet_types JSON NULL DEFAULT NULL COMMENT 'e.g., ["dog", "cat"] or NULL for all pet types',
+    applicable_services_or_products JSON NULL DEFAULT NULL COMMENT 'e.g., ["grooming_service_id:1", "product_sku:XYZ"] or NULL for all',
+    status ENUM('active', 'inactive', 'expired', 'fully_redeemed') DEFAULT 'inactive',
+    created_by_user_id INT NOT NULL COMMENT 'User ID of the Business Admin or Super Admin who created it',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE RESTRICT -- Don't delete user if they created coupons
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Table to store discount coupons offered by businesses';
+
+CREATE TABLE user_coupons (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    coupon_id INT NOT NULL,
+    redeemed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    order_id_if_applicable VARCHAR(100) NULL DEFAULT NULL COMMENT 'Link to an order ID if used in a transaction system',
+    -- redemption_instance INT DEFAULT 1, -- Needed if usage_limit_per_user > 1 to make the unique key work correctly.
+    -- For now, assuming usage_limit_per_user is mostly 1. If it can be > 1, this design needs adjustment for uniqueness.
+    -- A simple unique key on (user_id, coupon_id) assumes a user can only redeem a specific coupon once overall.
+    -- If a coupon can be used multiple times by the same user up to usage_limit_per_user,
+    -- then this table tracks each redemption instance. The check for limit would be in application logic.
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (coupon_id) REFERENCES coupons(id) ON DELETE CASCADE,
+    -- To allow multiple redemptions by the same user for the same coupon (up to coupon.usage_limit_per_user):
+    -- No unique key on (user_id, coupon_id) directly. Logic must check count(*) against usage_limit_per_user.
+    -- If strictly one redemption per user per coupon:
+    UNIQUE KEY uk_user_coupon_redemption (user_id, coupon_id)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Tracks coupon redemptions by users';
+
+-- Indexes for coupons
+CREATE INDEX idx_coupons_business_id ON coupons(business_id);
+CREATE INDEX idx_coupons_code ON coupons(code);
+CREATE INDEX idx_coupons_status_dates ON coupons(status, start_date, end_date);
+
+-- Indexes for user_coupons
+CREATE INDEX idx_user_coupons_user_coupon ON user_coupons(user_id, coupon_id);

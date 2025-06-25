@@ -96,6 +96,10 @@ $routes = [
     '/admin/reviews' => 'pages/admin/reviews.php', // New route for admin review management
     '/admin/forums' => 'pages/admin/forums.php', // Placeholder for forum moderation dashboard
     '/admin/analytics' => 'pages/admin/analytics.php',
+    // Business Admin Coupon Management specific routes
+    '/admin/business/coupons' => 'pages/admin/business/coupons.php', // Manage coupons
+    '/admin/business/coupons/create' => 'pages/admin/business/coupon-create.php', // Create coupon
+    '/admin/business/coupons/edit/(?P<id>\d+)' => 'pages/admin/business/coupon-edit.php', // Edit coupon, (?P<id>\d+) for named capture group
 
     // API endpoint examples (usually handled by a dedicated API router or .htaccess)
     // For simplicity, we can list some direct script paths if not using a full API router.
@@ -219,6 +223,17 @@ if (array_key_exists($requestedPath, $routes)) {
             $pageFound = true;
         } else {
             error_log("Routing error: new-topic.php not found for route '/forums/new-topic'.");
+        }
+    }
+    // Admin Edit Coupon Page: /admin/business/coupons/edit/{id}
+    elseif (preg_match('#^/admin/business/coupons/edit/([0-9]+)$#', $requestedPath, $matches)) {
+        $_GET['id'] = (int)$matches[1]; // Pass coupon_id as 'id'
+        $filePath = BASE_PATH . DS . 'pages' . DS . 'admin' . DS . 'business' . DS . 'coupon-edit.php';
+        if (file_exists($filePath)) {
+            $pageToLoad = $filePath;
+            $pageFound = true;
+        } else {
+            error_log("Routing error: coupon-edit.php not found for coupon ID '{$matches[1]}'.");
         }
     }
     // Example for /pets/add, /pets/edit/{id}, /pets/view/{id} (for future)
