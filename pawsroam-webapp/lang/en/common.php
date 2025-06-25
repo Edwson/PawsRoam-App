@@ -473,6 +473,28 @@ return [
     'error_admin_invalid_new_status_for_review' => 'Invalid new status provided for the review. Must be "approved" or "rejected".',
     'success_admin_review_status_updated %s %s' => 'Review ID %s status has been updated to %s.', // %s for review_id, %s for new_status
     'error_admin_review_not_found_or_no_change' => 'Review not found, or its status was already set to the new value.',
+    'info_admin_review_status_already_set %s' => 'Review status is already %s.', // %s is status
+
+    // Admin Review Management Page (pages/admin/reviews.php - Frontend)
+    'admin_reviews_list_title_filtered' => 'Filtered Reviews',
+    'admin_review_col_id' => 'ID',
+    'admin_review_col_business' => 'Business',
+    'admin_review_col_author' => 'Author',
+    'admin_review_col_rating' => 'Rating',
+    'admin_review_col_comment' => 'Comment',
+    'admin_review_col_status' => 'Status',
+    'admin_review_col_date' => 'Date',
+    'admin_review_col_actions' => 'Actions',
+    'admin_reviews_loading_initial' => 'Loading reviews...',
+    'admin_reviews_none_found_with_filters' => 'No reviews found matching your current filter criteria.',
+    'admin_reviews_load_error' => 'An error occurred while trying to load reviews.',
+    'admin_reviews_load_network_error' => 'A network error occurred while loading reviews. Please try again.',
+    'admin_review_action_approve' => 'Approve Review',
+    'admin_review_action_reject' => 'Reject Review',
+    'admin_review_action_approve_rejected' => 'Approve (Rejected Review)',
+    'admin_review_action_confirm %s %s' => 'Are you sure you want to %s review ID %s?', // %s action, %s reviewId
+    'admin_review_action_failed %s' => 'Failed to %s review.', // %s action
+    'admin_review_action_network_error %s' => 'Network error trying to %s review.', // %s action
 
 
     // User Avatar Upload (pages/profile.php JS and api/v1/user/avatar-upload.php)
@@ -511,6 +533,12 @@ return [
     'error_validation_summary' => "Please correct the following errors:", // For JS if multiple errors from API
     'review_submit_failed_network' => "A network error occurred while submitting your review. Please try again.", // JS network error
     'review_status_rejected_message' => "Your previous review for this place was not approved.", // For display if existing review is rejected
+
+    // Average Review Rating Display (pages/business-detail.php)
+    'average_rating_from_reviews_title %s %s' => 'Average rating of %s out of 5 stars from %s user reviews.', // %s for avg rating, %s for count
+    'review_singular' => 'review',
+    'review_plural' => 'reviews',
+    'no_reviews_yet_short' => 'No user reviews yet',
 
     // Display Reviews (pages/business-detail.php JS)
     'button_load_more_reviews' => 'Load More Reviews',

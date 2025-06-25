@@ -46,46 +46,83 @@ if ($status_filter !== null && !in_array($status_filter, $allowed_statuses)) {
 $reviews = [];
 $total_reviews = 0;
 $total_pages = 0;
+$reviews = [];
 
-// Dummy data for stub
-$all_dummy_reviews = [
-    ['id' => 201, 'business_id' => 1, 'business_name' => 'The Pet Cafe', 'user_id' => 2, 'author_username' => 'UserA', 'rating' => 5, 'title' => 'Loved it!', 'comment' => 'Great atmosphere for pets.', 'status' => 'pending', 'created_at' => date("Y-m-d H:i:s", strtotime("-1 day"))],
-    ['id' => 202, 'business_id' => 2, 'business_name' => 'Happy Paws Park', 'user_id' => 3, 'author_username' => 'UserB', 'rating' => 4, 'title' => 'Good for dogs', 'comment' => 'Lots of space to run.', 'status' => 'approved', 'created_at' => date("Y-m-d H:i:s", strtotime("-3 days"))],
-    ['id' => 203, 'business_id' => 1, 'business_name' => 'The Pet Cafe', 'user_id' => 4, 'author_username' => 'UserC', 'rating' => 2, 'title' => 'Okayish', 'comment' => 'A bit small.', 'status' => 'rejected', 'created_at' => date("Y-m-d H:i:s", strtotime("-5 days"))],
-    ['id' => 204, 'business_id' => 3, 'business_name' => 'Another Biz', 'user_id' => 5, 'author_username' => 'UserD', 'rating' => 5, 'title' => 'Fantastic!', 'comment' => 'Will come again', 'status' => 'pending', 'created_at' => date("Y-m-d H:i:s", strtotime("-2 hours"))],
-];
+try {
+    $db = Database::getInstance()->getConnection();
+    $params = [];
 
-$filtered_reviews = $all_dummy_reviews;
-if ($status_filter) {
-    $filtered_reviews = array_filter($filtered_reviews, function($review) use ($status_filter) {
-        return $review['status'] === $status_filter;
-    });
-}
-if ($business_name_search) {
-     $filtered_reviews = array_filter($filtered_reviews, function($review) use ($business_name_search) {
-        return stripos($review['business_name'], $business_name_search) !== false;
-    });
-}
-$total_reviews = count($filtered_reviews);
-$total_pages = ceil($total_reviews / $limit);
-$offset = ($page - 1) * $limit;
-$reviews = array_slice(array_values($filtered_reviews), $offset, $limit); // Re-index after filter
+    // Base query
+    $count_sql = "SELECT COUNT(br.id)
+                  FROM business_reviews br
+                  JOIN users u ON br.user_id = u.id
+                  JOIN businesses b ON br.business_id = b.id";
+    $select_sql = "SELECT br.id, br.business_id, b.name as business_name, br.user_id, u.username as author_username,
+                          br.rating, br.title, br.comment, br.status, br.created_at, br.updated_at
+                   FROM business_reviews br
+                   JOIN users u ON br.user_id = u.id
+                   JOIN businesses b ON br.business_id = b.id";
 
-// Actual query structure would be:
-/*
-SELECT br.*, u.username as author_username, b.name as business_name
-FROM business_reviews br
-JOIN users u ON br.user_id = u.id
-JOIN businesses b ON br.business_id = b.id
-WHERE (:status_filter IS NULL OR br.status = :status_filter)
-  AND (:business_name_search IS NULL OR b.name LIKE :business_name_search_like)
-ORDER BY br.created_at DESC
-LIMIT :limit OFFSET :offset
-*/
+    $where_clauses = [];
+    if ($status_filter) {
+        $where_clauses[] = "br.status = :status_filter";
+        $params[':status_filter'] = $status_filter;
+    }
+    if ($business_name_search) {
+        $where_clauses[] = "b.name LIKE :business_name_search_like";
+        $params[':business_name_search_like'] = '%' . $business_name_search . '%';
+    }
 
-http_response_code(200);
-echo json_encode([
-    'success' => true,
+    if (!empty($where_clauses)) {
+        $count_sql .= " WHERE " . implode(" AND ", $where_clauses);
+        $select_sql .= " WHERE " . implode(" AND ", $where_clauses);
+    }
+
+    // Get total count for pagination
+    $stmt_count = $db->prepare($count_sql);
+    $stmt_count->execute($params);
+    $total_reviews = (int)$stmt_count->fetchColumn();
+
+    if ($total_reviews > 0) {
+        $total_pages = ceil($total_reviews / $limit);
+        if ($page > $total_pages) { $page = $total_pages; } // Adjust page if out of bounds
+        $offset = ($page - 1) * $limit;
+
+        $select_sql .= " ORDER BY br.created_at DESC LIMIT :limit OFFSET :offset";
+        $stmt_reviews = $db->prepare($select_sql);
+
+        // Bind all params for the main query
+        foreach ($params as $key => &$val) { // Use reference for $val
+            $stmt_reviews->bindParam($key, $val); // Type inferred by PDO
+        }
+        unset($val); // Break reference
+        $stmt_reviews->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt_reviews->bindParam(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt_reviews->execute();
+        $reviews_data = $stmt_reviews->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($reviews_data as $item) {
+            $reviews[] = [
+                'id' => (int)$item['id'],
+                'business_id' => (int)$item['business_id'],
+                'business_name' => e($item['business_name']),
+                'user_id' => (int)$item['user_id'],
+                'author_username' => e($item['author_username']),
+                'rating' => (int)$item['rating'],
+                'title' => $item['title'] ? e($item['title']) : null,
+                'comment_snippet' => $item['comment'] ? e(substr($item['comment'], 0, 100)) . (strlen($item['comment']) > 100 ? '...' : '') : null,
+                'full_comment' => $item['comment'] ? e($item['comment']) : null, // For admin view detail later
+                'status' => $item['status'],
+                'created_at' => date("Y-m-d H:i", strtotime($item['created_at'])),
+                'updated_at' => date("Y-m-d H:i", strtotime($item['updated_at'])),
+            ];
+        }
+    }
+
+    http_response_code(200);
+    echo json_encode([
+        'success' => true,
     'reviews' => $reviews,
     'pagination' => [
         'total_items' => $total_reviews,

@@ -52,38 +52,69 @@ if (!empty($errors)) {
     exit;
 }
 
-// --- STUB: Database Update ---
+// --- Process Status Update ---
+$db = Database::getInstance()->getConnection();
 try {
-    $db = Database::getInstance()->getConnection();
-    // For this stub, we'll just pretend it was updated.
-    // Actual update:
-    /*
+    // Fetch current review details to get business_id and old_status
+    $stmt_fetch = $db->prepare("SELECT business_id, status FROM business_reviews WHERE id = :review_id");
+    $stmt_fetch->bindParam(':review_id', $review_id, PDO::PARAM_INT);
+    $stmt_fetch->execute();
+    $review_details = $stmt_fetch->fetch(PDO::FETCH_ASSOC);
+
+    if (!$review_details) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => __('error_admin_review_not_found_for_update', [], $current_api_language)]); // "Review ID not found."
+        exit;
+    }
+
+    $old_status = $review_details['status'];
+    $business_id = (int)$review_details['business_id'];
+
+    if ($old_status === $new_status) {
+        http_response_code(200); // Or 304 Not Modified, but 200 with message is fine for API
+        echo json_encode(['success' => true, 'message' => __('info_admin_review_status_already_set %s', [], $current_api_language)]); // "Review status is already %s."
+        exit;
+    }
+
+    $db->beginTransaction();
+
     $stmt_update = $db->prepare("UPDATE business_reviews SET status = :new_status, updated_at = NOW() WHERE id = :review_id");
     $stmt_update->bindParam(':new_status', $new_status);
     $stmt_update->bindParam(':review_id', $review_id, PDO::PARAM_INT);
-    $stmt_update->execute();
 
-    if ($stmt_update->rowCount() > 0) {
-        // STUB for future: If status changed to 'approved' or from 'approved' to something else,
-        // trigger recalculation of businesses.average_review_rating and businesses.total_review_count.
-        // This could involve fetching the business_id for this review_id first.
-        // Example: update_business_review_aggregates($business_id_of_this_review);
-
-        http_response_code(200); // OK
-        echo json_encode(['success' => true, 'message' => sprintf(__('success_admin_review_status_updated %s %s', [], $current_api_language), $review_id, $new_status)]); // "Review ID %s status updated to %s."
-    } else {
-        // Review not found or status was already the same
-        http_response_code(404); // Or 304 Not Modified if status was same
-        echo json_encode(['success' => false, 'message' => __('error_admin_review_not_found_or_no_change', [], $current_api_language)]); // "Review not found or status already set."
+    if (!$stmt_update->execute()) {
+        $db->rollBack();
+        throw new Exception("Failed to update review status in DB.");
     }
-    */
 
-    // Dummy success for stub:
-    http_response_code(200);
-    echo json_encode(['success' => true, 'message' => sprintf(__('success_admin_review_status_updated %s %s', [], $current_api_language), $review_id, $new_status) . " (Stubbed)"]);
+    // Update business aggregates if status changed to/from 'approved'
+    $needs_aggregate_update = false;
+    if (($old_status !== 'approved' && $new_status === 'approved') || ($old_status === 'approved' && $new_status !== 'approved')) {
+        $needs_aggregate_update = true;
+    }
 
+    if ($needs_aggregate_update) {
+        if (!update_business_review_aggregates($business_id)) {
+            // Log this error, but the primary status update might have succeeded.
+            // Depending on policy, you might rollback or just log. For now, log and proceed.
+            error_log("Admin Update Review Status API: Failed to update business review aggregates for business ID {$business_id} after status change of review ID {$review_id}.");
+            // If this is critical, you might throw an exception here to trigger rollback.
+            // For now, we assume review status update is primary.
+        }
+    }
+
+    $db->commit();
+
+    http_response_code(200); // OK
+    echo json_encode([
+        'success' => true,
+        'message' => sprintf(__('success_admin_review_status_updated %s %s', [], $current_api_language), $review_id, $new_status),
+        'review_id' => $review_id,
+        'new_status' => $new_status
+    ]);
 
 } catch (PDOException $e) {
+    if ($db->inTransaction()) { $db->rollBack(); }
     error_log("Admin Update Review Status API (PDOException): " . $e->getMessage());
     http_response_code(500); echo json_encode(['success' => false, 'message' => __('error_server_generic', [], $current_api_language)]);
 } catch (Exception $e) {
