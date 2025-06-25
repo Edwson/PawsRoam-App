@@ -212,7 +212,8 @@ return [
 
     // Pet Profile Management Page (pages/pet-profile.php)
     'page_title_pet_profiles' => 'My Pet Profiles',
-    'tooltip_add_new_pet' => 'Add a new pet to your profile (Feature coming soon)',
+    'tooltip_add_new_pet' => 'Add a new pet to your profile (Feature coming soon)', // Kept for reference, but new one used
+    'tooltip_add_new_pet_now' => 'Add a new pet to your profile',
     'button_add_new_pet' => 'Add New Pet',
     'error_pet_profiles_load_failed_db' => 'Could not load your pet profiles due to a database error. Please try again.',
     'pet_profiles_list_title' => 'Your Registered Pets',
@@ -353,6 +354,11 @@ return [
     'error_business_already_recognized_concurrent' => "It appears you've just recognized this business, or another recognition was processed simultaneously. Thanks!",
     'success_business_recognized' => 'Thank you for recognizing this business! Your feedback helps our community.',
 
+    // Delete Pet JS Alerts (pages/pet-profile.php)
+    'success_pet_profile_deleted_js_alert' => 'Pet profile deleted successfully.',
+    'error_pet_delete_failed_js_alert' => 'Failed to delete pet profile. Please try again.',
+    'error_pet_delete_network_js_alert' => 'An error occurred while trying to delete the pet profile. Please check your connection and try again.',
+
     // File Upload Function (handle_file_upload in functions.php)
     'error_upload_no_file_input_name' => 'File input configuration error on server.',
     'error_upload_err_ini_size' => 'The uploaded file exceeds the maximum allowed file size set on the server.',
@@ -368,6 +374,30 @@ return [
     'error_upload_move_failed' => 'Could not save the uploaded file.', // For future use
     'error_upload_invalid_type' => 'Invalid file type. Allowed types are: %s.', // For future use, %s for allowed types
     'error_upload_too_large' => 'File is too large. Maximum allowed size is %s MB.', // For future use, %s for size
+
+    // Delete Pet API (api/v1/pets/delete.php)
+    'error_invalid_pet_id_provided' => 'Invalid or missing pet ID for deletion.',
+    'error_pet_not_found_for_deletion' => 'The selected pet profile could not be found.',
+    'error_pet_delete_unauthorized' => 'You are not authorized to delete this pet profile.',
+    'error_pet_delete_failed_db' => 'Failed to delete the pet profile from the database. Please try again.',
+    'success_pet_avatar_deleted' => 'The associated avatar file was also deleted.',
+    'error_pet_avatar_delete_failed' => 'The pet profile was deleted, but the associated avatar file could not be removed from the server. Please contact support if this persists.',
+    'info_pet_avatar_not_found_on_disk' => 'The pet profile was deleted. No associated avatar file was found on disk to remove.',
+    'success_pet_profile_deleted' => 'Pet profile deleted successfully.',
+    'success_pet_profile_deleted_js_alert' => 'Pet profile deleted successfully.', // For JS alert
+    'error_pet_delete_failed_js_alert' => 'Failed to delete pet profile. Please try again.', // For JS alert
+    'error_pet_delete_network_js_alert' => 'An error occurred while trying to delete the pet profile. Please check your connection and try again.', // For JS alert
+
+
+    // Recognize Business Button (pages/business-detail.php)
+    'tooltip_login_to_recognize' => 'You must be logged in to recognize this place.',
+    'tooltip_recognize_this_place' => 'Add your recognition for this place',
+    'recognize_this_place_button' => 'Recognize this Place',
+    'recognize_success_message_short' => 'Successfully recognized!',
+    'recognize_button_recognized_text' => 'Recognized!',
+    'recognize_failed_message_short' => 'Recognition failed.',
+    'recognize_button_already_recognized_text' => 'Already Recognized',
+    'recognize_failed_network' => 'A network error occurred. Please try again.',
 
     // Add more translations as features are developed...
 ];

@@ -180,10 +180,35 @@ if (empty($pageTitle) && $error_message) {
 
                     <div>
                         <h4 class="h5 mb-3 text-text-dark"><?php echo e(__('actions_title', [], $GLOBALS['current_language'] ?? 'en')); ?></h4>
+                        <?php
+                        // Ensure CSRF token is available for actions like "Recognize"
+                        // It's better to generate it once if not already set by index.php or form handler
+                        if (empty($_SESSION[CSRF_TOKEN_NAME ?? 'csrf_token']) && function_exists('generate_csrf_token')) {
+                            generate_csrf_token(true);
+                        }
+                        // This hidden field can be picked up by JS for various actions.
+                        // Alternatively, each button could be part of its own mini-form if JS is disabled.
+                        echo csrf_input_field();
+                        ?>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item px-0"><a href="#" class="text-decoration-none d-block"><i class="bi bi-heart-fill me-2 text-danger"></i><?php echo e(__('add_to_favorites_button', [], $GLOBALS['current_language'] ?? 'en')); ?></a></li>
-                            <li class="list-group-item px-0"><a href="#" class="text-decoration-none d-block"><i class="bi bi-share-fill me-2 text-primary-blue"></i><?php echo e(__('share_this_place_button', [], $GLOBALS['current_language'] ?? 'en')); ?></a></li>
-                            <li class="list-group-item px-0"><a href="#" class="text-decoration-none d-block"><i class="bi bi-flag-fill me-2 text-warning"></i><?php echo e(__('report_issue_button', [], $GLOBALS['current_language'] ?? 'en')); ?></a></li>
+                            <li class="list-group-item px-0">
+                                <button id="recognizeBusinessBtn" class="btn btn-outline-success w-100 text-start"
+                                        data-business-id="<?php echo e($business_data['id']); ?>"
+                                        <?php if (!is_logged_in()): ?>
+                                            disabled
+                                            title="<?php echo e(__('tooltip_login_to_recognize', [], $GLOBALS['current_language'] ?? 'en')); ?>"
+                                        <?php else: ?>
+                                            title="<?php echo e(__('tooltip_recognize_this_place', [], $GLOBALS['current_language'] ?? 'en')); // "Add your recognition for this place" ?>"
+                                        <?php endif; ?>>
+                                    <i class="bi bi-star me-2"></i>
+                                    <span class="button-text"><?php echo e(__('recognize_this_place_button', [], $GLOBALS['current_language'] ?? 'en')); ?></span>
+                                    <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                                </button>
+                                <small id="recognizeStatusMsg" class="form-text d-block mt-1 ps-1"></small>
+                            </li>
+                            <li class="list-group-item px-0"><a href="#" class="text-decoration-none d-block disabled" title="Feature coming soon"><i class="bi bi-heart-fill me-2 text-danger"></i><?php echo e(__('add_to_favorites_button', [], $GLOBALS['current_language'] ?? 'en')); ?></a></li>
+                            <li class="list-group-item px-0"><a href="#" class="text-decoration-none d-block disabled" title="Feature coming soon"><i class="bi bi-share-fill me-2 text-primary-blue"></i><?php echo e(__('share_this_place_button', [], $GLOBALS['current_language'] ?? 'en')); ?></a></li>
+                            <li class="list-group-item px-0"><a href="#" class="text-decoration-none d-block disabled" title="Feature coming soon"><i class="bi bi-flag-fill me-2 text-warning"></i><?php echo e(__('report_issue_button', [], $GLOBALS['current_language'] ?? 'en')); ?></a></li>
                             <?php if (is_logged_in() && $business_data && ( (has_role(['business_admin']) && current_user_id() == $business_data['owner_user_id']) || has_role('super_admin') ) ): ?>
                                 <li class="list-group-item px-0 mt-2 pt-2 border-top">
                                     <a href="<?php echo e(base_url('/admin/businesses/edit?id=' . $business_data['id'] )); ?>" class="btn btn-outline-secondary w-100"><i class="bi bi-pencil-square me-2"></i><?php echo e(__('edit_business_button_admin', [], $GLOBALS['current_language'] ?? 'en')); ?></a>
