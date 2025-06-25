@@ -251,11 +251,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const spinner = updateButton.querySelector('.spinner-border');
     const formMessages = document.getElementById('profile-form-messages');
 
-    // For this stub, the update button is always enabled, but API is not implemented.
-    // In a real scenario, you might enable it on form input change.
-    // updateButton.disabled = true; // Start disabled
-    // profileForm.addEventListener('input', () => updateButton.disabled = false);
-
+    // Enable the update button (it might have been disabled in a pure stub)
+    if(updateButton) updateButton.disabled = false;
 
     function clearProfileValidationUI() {
         profileForm.querySelectorAll('.form-control, .form-select').forEach(el => el.classList.remove('is-invalid'));
@@ -266,21 +263,42 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function displayProfileFormMessage(message, type = 'danger') {
+    function displayProfileFormMessage(message, type = 'danger', isHtml = false) {
         if (!formMessages) return;
         formMessages.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                                    ${escapeHtml(message)}
+                                    ${isHtml ? message : escapeHtml(message)}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                  </div>`;
+        formMessages.hidden = false;
     }
 
     function displayProfileFieldErrors(errors) {
+        // Ensure previous general messages are cleared if field errors are shown
+        // if (formMessages) formMessages.innerHTML = '';
+
         for (const field in errors) {
             const inputElement = profileForm.querySelector(`[name="${field}"]`);
-            const errorElement = document.getElementById(`${field}Error`) || (inputElement ? inputElement.closest('.col-sm-8, .col-sm-9').querySelector('.invalid-feedback') : null);
+            // Try to find error div by ID convention (fieldName + "Error") or as sibling/cousin .invalid-feedback
+            const errorElement = document.getElementById(`${field}Error`) ||
+                                 (inputElement ? (inputElement.closest('.form-floating') || inputElement.closest('.mb-3') || inputElement.parentNode).querySelector('.invalid-feedback') : null);
 
-            if (inputElement) inputElement.classList.add('is-invalid');
-            if (errorElement) errorElement.textContent = errors[field];
+            if (inputElement) {
+                inputElement.classList.add('is-invalid');
+                // Focus the first field with an error
+                if (Object.keys(errors)[0] === field) {
+                    inputElement.focus();
+                }
+            }
+            if (errorElement) {
+                errorElement.textContent = errors[field];
+                errorElement.style.display = 'block'; // Ensure it's visible if hidden by default
+            } else if (inputElement) {
+                // Fallback if no dedicated error div, append after input (less ideal for Bootstrap structure)
+                const smallError = document.createElement('div');
+                smallError.className = 'invalid-feedback d-block';
+                smallError.textContent = errors[field];
+                inputElement.parentNode.appendChild(smallError);
+            }
         }
     }
 
@@ -297,33 +315,75 @@ document.addEventListener('DOMContentLoaded', function() {
         if (spinner) spinner.classList.remove('d-none');
         updateButton.disabled = true;
 
-        // --- STUBBED API CALL ---
-        // This is where the actual fetch to '/api/v1/user/profile' would go.
-        // For now, simulate an API response.
-        setTimeout(() => {
-            // Simulate an error for demonstration, or success
-            const simulateSuccess = false; // Change to true to test success path
+        const formData = new FormData(profileForm);
 
-            if (simulateSuccess) {
-                 displayProfileFormMessage('<?php echo e(__('profile_alert_update_success_stub', [], $GLOBALS['current_language'] ?? 'en')); // "Profile updated successfully! (Stub)" ?>', 'success');
-                 // If successful, you might want to update displayed values if they changed, or reload data.
+        // Only send password fields if new_password is not empty
+        // The API will require current_password if new_password is set.
+        if (formData.get('new_password') === '') {
+            formData.delete('current_password');
+            formData.delete('new_password');
+            formData.delete('confirm_new_password');
+        }
+
+        // The user_id is already in a hidden field, confirmed by session on server.
+
+        try {
+            const response = await fetch(profileForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                displayProfileFormMessage(result.message || '<?php echo e(__('profile_update_success', [], $GLOBALS['current_language'] ?? 'en')); ?>', 'success');
+
+                // If username was updated, reflect it in the navigation (if possible without full page reload)
+                if (result.updated_fields && result.updated_fields.includes('username')) {
+                   const navUsernameDisplay = document.querySelector('#userDropdown'); // Assuming Bootstrap nav dropdown ID
+                   if (navUsernameDisplay && formData.get('username')) {
+                       // This is a simplistic update; a more robust solution might involve a global state or events.
+                       // Example: navUsernameDisplay.textContent = `Welcome, ${formData.get('username')}`;
+                       // For now, we can inform the user a refresh might be needed for all UI updates.
+                       console.log("Username updated. Navigation might need a refresh to show new username.");
+                   }
+                }
+                // If password was changed successfully, clear password fields on the form
+                if (result.updated_fields && result.updated_fields.includes('password')) {
+                    ['current_password', 'new_password', 'confirm_new_password'].forEach(fieldName => {
+                        const field = profileForm.querySelector(`[name="${fieldName}"]`);
+                        if (field) field.value = '';
+                    });
+                }
+                 // If language preference changed, a page reload might be best to apply new language strings everywhere
+                if (result.updated_fields && result.updated_fields.includes('language_preference')) {
+                    displayProfileFormMessage(result.message + ' <?php echo e(__('profile_update_language_changed_refresh_note', [], $GLOBALS['current_language'] ?? 'en')); // "Language preference changed. The page will reload to apply changes." ?>', 'success');
+                    setTimeout(() => window.location.reload(), 3000);
+                }
+
+
             } else {
-                const simulatedErrors = {
-                    username: '<?php echo e(__('error_username_taken_stub', [], $GLOBALS['current_language'] ?? 'en')); // "This username is already taken. (Stub)" ?>',
-                    new_password: '<?php echo e(__('error_password_min_length_stub', [], $GLOBALS['current_language'] ?? 'en')); // "New password is too short. (Stub)" ?>'
-                };
-                displayProfileFieldErrors(simulatedErrors);
-                displayProfileFormMessage('<?php echo e(__('profile_alert_update_failed_stub', [], $GLOBALS['current_language'] ?? 'en')); // "Profile update failed. Please check errors. (Stub)" ?>', 'danger');
+                let errorMessage = result.message || '<?php echo e(__('profile_update_failed_generic_error', [], $GLOBALS['current_language'] ?? 'en')); ?>';
+                if (result.errors) {
+                    displayProfileFieldErrors(result.errors);
+                } else {
+                     // If no specific errors object, but call failed, show the general message prominently.
+                     displayProfileFormMessage(errorMessage, 'danger');
+                }
             }
-
+        } catch (error) {
+            console.error('Profile update submission error:', error);
+            displayProfileFormMessage('<?php echo e(__('profile_update_failed_network', [], $GLOBALS['current_language'] ?? 'en')); ?>', 'danger');
+        } finally {
             if (buttonText) buttonText.textContent = '<?php echo e(__('profile_button_update', [], $GLOBALS['current_language'] ?? 'en')); ?>';
             if (spinner) spinner.classList.add('d-none');
-            updateButton.disabled = false; // Re-enable after stubbed call
-        }, 1500);
-        // --- END STUBBED API CALL ---
-
-
-        /* // REAL API CALL (Example structure)
+            updateButton.disabled = false;
+        }
+    });
+});
+</script>
+<?php
+// Placeholder for translation strings
         const formData = new FormData(profileForm);
         try {
             const response = await fetch(profileForm.action, {

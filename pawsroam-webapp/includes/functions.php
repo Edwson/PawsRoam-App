@@ -192,4 +192,104 @@ function dd($var) {
 // - File system helpers (with caution)
 // - etc.
 
+
+/**
+ * Handles a file upload. (STUB - needs full implementation for security and functionality)
+ *
+ * This function will eventually handle:
+ * - Checking for upload errors.
+ * - Validating file type and size.
+ * - Generating a unique, safe filename.
+ * - Creating the target directory if it doesn't exist.
+ * - Moving the uploaded file to the target directory.
+ *
+ * @param string $file_input_name The name of the file input field in the form (e.g., 'avatar').
+ * @param string $target_directory The base directory to upload files to (e.g., 'uploads/avatars/').
+ *                                 This path should be relative to a defined UPLOADS_BASE_PATH or similar.
+ * @param array $allowed_types An array of allowed MIME types (e.g., ['image/jpeg', 'image/png']).
+ * @param int $max_size_bytes Maximum allowed file size in bytes.
+ * @param string $new_filename_prefix Optional prefix for the new unique filename.
+ * @return array Associative array with 'success' (bool), 'filepath' (string|null),
+ *               'filename' (string|null), and 'message' (string).
+ */
+function handle_file_upload($file_input_name, $target_directory,
+                            $allowed_types = ['image/jpeg', 'image/png', 'image/gif'],
+                            $max_size_bytes = 2097152, /* 2MB default */
+                            $new_filename_prefix = 'file_') {
+
+    // Ensure target directory is relative to a secure base path, not directly from user input.
+    // Example: $full_target_dir = (defined('UPLOADS_BASE_PATH') ? UPLOADS_BASE_PATH : BASE_PATH . DS . 'uploads') . DS . trim($target_directory, '/\\');
+    // For this stub, we'll just acknowledge the $target_directory parameter.
+
+    if (!isset($_FILES[$file_input_name])) {
+        return ['success' => false, 'message' => __('error_upload_no_file_input_name', [], $GLOBALS['current_language'] ?? 'en')]; // "No file input found with the specified name."
+    }
+
+    $file = $_FILES[$file_input_name];
+
+    // Check for basic upload errors first
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        $upload_errors = [
+            UPLOAD_ERR_INI_SIZE   => __('error_upload_err_ini_size', [], $GLOBALS['current_language'] ?? 'en'), // "File exceeds upload_max_filesize directive in php.ini."
+            UPLOAD_ERR_FORM_SIZE  => __('error_upload_err_form_size', [], $GLOBALS['current_language'] ?? 'en'), // "File exceeds MAX_FILE_SIZE directive in HTML form."
+            UPLOAD_ERR_PARTIAL    => __('error_upload_err_partial', [], $GLOBALS['current_language'] ?? 'en'), // "File was only partially uploaded."
+            UPLOAD_ERR_NO_FILE    => __('error_upload_err_no_file', [], $GLOBALS['current_language'] ?? 'en'), // "No file was uploaded." (This means field was there but no file chosen)
+            UPLOAD_ERR_NO_TMP_DIR => __('error_upload_err_no_tmp_dir', [], $GLOBALS['current_language'] ?? 'en'), // "Missing a temporary folder on server."
+            UPLOAD_ERR_CANT_WRITE => __('error_upload_err_cant_write', [], $GLOBALS['current_language'] ?? 'en'), // "Failed to write file to disk on server."
+            UPLOAD_ERR_EXTENSION  => __('error_upload_err_extension', [], $GLOBALS['current_language'] ?? 'en'), // "A PHP extension stopped the file upload."
+        ];
+        $error_message = $upload_errors[$file['error']] ?? __('error_upload_unknown', [], $GLOBALS['current_language'] ?? 'en'); // "Unknown upload error."
+        error_log("File upload error for '{$file_input_name}': Code {$file['error']} - {$error_message}. Original name: {$file['name']}");
+        return ['success' => false, 'message' => $error_message, 'error_code' => $file['error']];
+    }
+
+    // If UPLOAD_ERR_NO_FILE was not the error, but file name is empty, it's also an issue.
+    if (empty($file['name'])) {
+         return ['success' => false, 'message' => __('error_upload_err_no_file', [], $GLOBALS['current_language'] ?? 'en')];
+    }
+
+    // --- STUB: Full validation and processing deferred ---
+    error_log("File '{$file['name']}' received for input '{$file_input_name}'. Type: {$file['type']}, Size: {$file['size']}. Full processing deferred.");
+
+    // Placeholder for actual file validation and saving logic:
+    // 1. Validate MIME type ($file['type']) against $allowed_types.
+    //    Consider using finfo_file for more reliable MIME type detection if available.
+    //    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    //    $actual_mime_type = finfo_file($finfo, $file['tmp_name']);
+    //    finfo_close($finfo);
+    //    if (!in_array($actual_mime_type, $allowed_types)) { ... error ... }
+
+    // 2. Validate file size ($file['size']) against $max_size_bytes.
+    //    if ($file['size'] > $max_size_bytes) { ... error ... }
+
+    // 3. Generate a unique and safe filename.
+    //    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    //    $safe_extension = strtolower($extension); // Sanitize if needed
+    //    $unique_filename = $new_filename_prefix . uniqid() . '_' . time() . '.' . $safe_extension;
+
+    // 4. Ensure target directory exists and is writable.
+    //    if (!is_dir($full_target_dir)) { mkdir($full_target_dir, 0755, true); } // Create if not exists
+    //    if (!is_writable($full_target_dir)) { ... error ... }
+
+    // 5. Move the uploaded file.
+    //    $destination_path = $full_target_dir . DS . $unique_filename;
+    //    if (move_uploaded_file($file['tmp_name'], $destination_path)) {
+    //        return ['success' => true,
+    //                'filepath' => trim($target_directory, '/\\') . '/' . $unique_filename, // Relative path for DB
+    //                'filename' => $unique_filename,
+    //                'message' => __('success_upload_file_saved', [], $GLOBALS['current_language'] ?? 'en')]; // "File uploaded successfully."
+    //    } else {
+    //        return ['success' => false, 'message' => __('error_upload_move_failed', [], $GLOBALS['current_language'] ?? 'en')]; // "Could not move uploaded file."
+    //    }
+
+    // Current stub behavior:
+    return [
+        'success' => false, // Set to true if you want to simulate success for UI testing, but no file is actually saved.
+        'message' => __('error_upload_processing_not_implemented', [], $GLOBALS['current_language'] ?? 'en'), // "File upload processing is not yet fully implemented."
+        'filepath' => null, // No file saved yet
+        'filename' => null  // No file saved yet
+    ];
+}
+
+
 ?>

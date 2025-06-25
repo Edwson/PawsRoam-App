@@ -66,6 +66,19 @@ CREATE TABLE pawssafe_providers (
     FOREIGN KEY (user_id) REFERENCES users(id)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- Business Recognitions (for PawStar system)
+CREATE TABLE business_recognitions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    business_id INT NOT NULL,
+    recognition_type VARCHAR(50) DEFAULT 'general', -- e.g., 'general', 'amenity_highlight', 'service_excellence'
+    comment TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_user_business_recognition (user_id, business_id) -- Prevents a user from giving multiple 'general' recognitions to the same business. If different types are distinct, type should be in key.
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- Pet profiles
 CREATE TABLE user_pets (
     id INT PRIMARY KEY AUTO_INCREMENT,

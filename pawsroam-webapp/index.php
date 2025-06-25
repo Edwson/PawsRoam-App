@@ -145,12 +145,23 @@ if (array_key_exists($requestedPath, $routes)) {
             error_log("Routing error: business-detail.php not found for identifier '{$identifier}'.");
         }
     }
-    // Example for /pets/add, /pets/edit/{id}, /pets/view/{id} (for future)
-    elseif (preg_match('#^/pets/add$#', $requestedPath)) {
-        // $filePath = BASE_PATH . DS . 'pages' . DS . 'pets' . DS . 'add-edit-pet.php'; // Assuming a combined add/edit form
-        // $_GET['action'] = 'add';
-        // if (file_exists($filePath)) { $pageToLoad = $filePath; $pageFound = true; }
-    } elseif (preg_match('#^/pets/(edit|view)/([0-9]+)$#', $requestedPath, $matches)) {
+    // Route for adding a new pet
+    elseif ($requestedPath === '/pets/add') {
+        $filePath = BASE_PATH . DS . 'pages' . DS . 'pets' . DS . 'add-pet.php';
+        if (file_exists($filePath)) {
+            $pageToLoad = $filePath;
+            $pageFound = true;
+        } else {
+            error_log("Routing error: add-pet.php not found for route '/pets/add'.");
+        }
+    }
+    // Example for /pets/edit/{id}, /pets/view/{id} (for future)
+    // elseif (preg_match('#^/pets/add$#', $requestedPath)) {
+    //     // $filePath = BASE_PATH . DS . 'pages' . DS . 'pets' . DS . 'add-edit-pet.php'; // Assuming a combined add/edit form
+    //     // $_GET['action'] = 'add';
+    //     // if (file_exists($filePath)) { $pageToLoad = $filePath; $pageFound = true; }
+    // }
+    elseif (preg_match('#^/pets/(edit|view)/([0-9]+)$#', $requestedPath, $matches)) {
         // $action = $matches[1]; // 'edit' or 'view'
         // $pet_id = (int)$matches[2];
         // $_GET['action'] = $action;
