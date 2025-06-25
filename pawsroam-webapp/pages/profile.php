@@ -222,8 +222,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user_data && function_exists('vali
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-light py-3"><h3 class="h6 mb-0 fw-semibold text-text-dark"><i class="bi bi-person-circle me-2"></i><?php echo e(__('profile_sidebar_avatar_title', [], $GLOBALS['current_language'] ?? 'en')); ?></h3></div>
                     <div class="card-body text-center p-4">
-                        <img src="<?php echo e(base_url('/assets/images/placeholders/avatar_placeholder_200x200.png')); ?>" alt="<?php echo e(sprintf(__('profile_avatar_alt_text_user %s', [], $GLOBALS['current_language'] ?? 'en'), e($user_data['username']))); ?>" class="img-thumbnail rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                        <button class="btn btn-sm btn-outline-secondary" disabled title="Feature coming soon"><i class="bi bi-camera-fill me-1"></i><?php echo e(__('profile_button_change_avatar', [], $GLOBALS['current_language'] ?? 'en')); ?></button>
+                        <?php
+                            $current_avatar_url = base_url('/assets/images/placeholders/avatar_placeholder_200x200.png'); // Default
+                            if (!empty($user_data['avatar_path']) && defined('UPLOADS_BASE_URL')) {
+                                // avatar_path from DB is expected to be like 'user-avatars/123/filename.jpg'
+                                $current_avatar_url = rtrim(UPLOADS_BASE_URL, '/') . '/' . ltrim($user_data['avatar_path'], '/');
+                            }
+                        ?>
+                        <img id="userAvatarPreview" src="<?php echo e($current_avatar_url); ?>"
+                             alt="<?php echo e(sprintf(__('profile_avatar_alt_text_user %s', [], $GLOBALS['current_language'] ?? 'en'), e($user_data['username']))); ?>"
+                             class="img-thumbnail rounded-circle mb-3 shadow-sm" style="width: 150px; height: 150px; object-fit: cover;">
+
+                        <form id="avatarUploadForm" action="<?php echo e(base_url('/api/v1/user/avatar-upload.php')); ?>" method="POST" enctype="multipart/form-data">
+                            <?php echo csrf_input_field(); // For this specific form ?>
+                            <input type="hidden" name="user_id" value="<?php echo e($user_data['id']); ?>">
+                            <div class="mb-2">
+                                <label for="user_avatar_upload_input" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-camera-fill me-1"></i><?php echo e(__('profile_button_select_avatar', [], $GLOBALS['current_language'] ?? 'en')); // "Select New Avatar" ?>
+                                </label>
+                                <input type="file" class="form-control d-none" id="user_avatar_upload_input" name="user_avatar" accept="<?php echo e(implode(',', unserialize(USER_AVATAR_ALLOWED_MIME_TYPES))); ?>">
+                            </div>
+                            <button type="submit" class="btn btn-sm btn-success d-none" id="uploadAvatarBtn">
+                                <i class="bi bi-upload me-1"></i><?php echo e(__('profile_button_upload_avatar', [], $GLOBALS['current_language'] ?? 'en')); // "Upload" ?>
+                                <span class="spinner-border spinner-border-sm ms-1 d-none" role="status" aria-hidden="true"></span>
+                            </button>
+                            <small id="avatarUploadStatus" class="form-text d-block mt-1"></small>
+                        </form>
                     </div>
                 </div>
                 <div class="card shadow-sm">

@@ -79,6 +79,29 @@ CREATE TABLE business_recognitions (
     UNIQUE KEY uk_user_business_recognition (user_id, business_id) -- Prevents a user from giving multiple 'general' recognitions to the same business. If different types are distinct, type should be in key.
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- Business Reviews
+CREATE TABLE business_reviews (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    business_id INT NOT NULL,
+    rating TINYINT(1) NOT NULL COMMENT 'User rating from 1 to 5 stars',
+    title VARCHAR(255) NULL DEFAULT NULL,
+    comment TEXT NULL DEFAULT NULL,
+    review_photos JSON NULL DEFAULT NULL COMMENT 'Array of image paths related to the review',
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE,
+    UNIQUE KEY uk_user_business_review (user_id, business_id) -- One review per user per business
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Modify businesses table to add review aggregate columns (for future calculation)
+-- ALTER TABLE businesses
+-- ADD COLUMN average_review_rating DECIMAL(3,2) DEFAULT 0.00 AFTER pawstar_rating,
+-- ADD COLUMN total_review_count INT DEFAULT 0 AFTER average_review_rating;
+
+
 -- Pet profiles
 CREATE TABLE user_pets (
     id INT PRIMARY KEY AUTO_INCREMENT,

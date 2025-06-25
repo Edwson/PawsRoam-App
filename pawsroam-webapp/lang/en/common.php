@@ -433,5 +433,27 @@ return [
     'view_pet_section_details' => 'Pet Details',
     'pet_age_years_months %d %d' => 'Approx. %d years, %d months old', // %d for years, %d for months
 
+    // Business Review API Stubs (api/v1/reviews/create.php & list.php)
+    'error_review_invalid_business_id' => 'A valid business ID is required to submit a review.',
+    'error_review_invalid_rating' => 'Please provide a rating between 1 and 5 stars.',
+    'error_review_title_too_long' => 'Review title cannot exceed 255 characters.',
+    'error_review_comment_too_short' => 'Your review comment must be at least 10 characters long.',
+    'error_review_comment_too_long' => 'Your review comment cannot exceed 5000 characters.',
+    'error_review_already_submitted' => 'You have already submitted a review for this business. You may be able to edit your existing review.',
+    'success_review_submitted_pending' => 'Your review has been submitted successfully and is now pending approval. Thank you for your feedback!',
+    'error_review_invalid_business_id_list' => 'A valid business ID is required to list reviews.',
+
+    // User Avatar Upload (pages/profile.php JS and api/v1/user/avatar-upload.php)
+    'profile_button_select_avatar' => 'Select New Avatar',
+    'profile_button_upload_avatar' => 'Upload Avatar',
+    'profile_error_no_avatar_selected' => 'Please select an image file to upload for your avatar.',
+    'state_text_uploading' => 'Uploading...', // Generic, can be reused
+    'profile_success_avatar_uploaded' => 'Avatar uploaded successfully! Your profile picture has been updated.',
+    'profile_error_avatar_upload_failed' => 'Avatar upload failed. Please ensure the file is a valid image (JPG, PNG) and within size limits.',
+    'profile_error_avatar_upload_network' => 'A network error occurred during avatar upload. Please try again.',
+    'error_avatar_upload_auth_failed' => 'Avatar upload authorization failed. Please try logging in again.',
+    'profile_success_avatar_uploaded_api' => 'Avatar uploaded and updated successfully!', // API specific success
+    'profile_error_avatar_db_update_failed' => 'Failed to update profile with the new avatar due to a database error.',
+
     // Add more translations as features are developed...
 ];
