@@ -148,10 +148,16 @@ CREATE TABLE forum_topics (
     view_count INT DEFAULT 0,
     is_sticky BOOLEAN DEFAULT FALSE,
     is_locked BOOLEAN DEFAULT FALSE,
+    locked_by_user_id INT NULL DEFAULT NULL,
+    locked_at TIMESTAMP NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    deleted_by_user_id INT NULL DEFAULT NULL,
     FOREIGN KEY (category_id) REFERENCES forum_categories(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (locked_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (deleted_by_user_id) REFERENCES users(id) ON DELETE SET NULL,
     UNIQUE KEY uk_forum_topic_slug (slug)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Discussion topics within forum categories';
 
@@ -164,10 +170,12 @@ CREATE TABLE forum_posts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL DEFAULT NULL,
+    deleted_by_user_id INT NULL DEFAULT NULL,
     ip_address VARCHAR(45) NULL,
     FOREIGN KEY (topic_id) REFERENCES forum_topics(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (parent_post_id) REFERENCES forum_posts(id) ON DELETE SET NULL
+    FOREIGN KEY (parent_post_id) REFERENCES forum_posts(id) ON DELETE SET NULL,
+    FOREIGN KEY (deleted_by_user_id) REFERENCES users(id) ON DELETE SET NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Individual posts within forum topics';
 
 -- Add the foreign key for last_post_id in forum_topics after forum_posts is created

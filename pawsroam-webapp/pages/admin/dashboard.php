@@ -183,6 +183,16 @@ if (has_role('super_admin')) {
                     </div>
                     <i class="bi bi-chevron-right fs-5 text-muted"></i>
                 </a>
+                <a href="<?php echo e(base_url('/admin/forums')); // Placeholder for actual forum moderation page ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 disabled" aria-disabled="true" title="<?php echo e(__('admin_link_disabled_tooltip', [], $GLOBALS['current_language'] ?? 'en')); ?>">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-chat-dots-fill me-3 fs-3 text-success align-middle"></i> <?php // Using chat-dots for forums ?>
+                        <div>
+                            <span class="fw-semibold fs-5"><?php echo e(__('admin_link_forum_moderation', [], $GLOBALS['current_language'] ?? 'en')); ?></span>
+                            <small class="d-block text-muted"><?php echo e(__('admin_link_forum_moderation_desc', [], $GLOBALS['current_language'] ?? 'en')); ?></small>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right fs-5 text-muted"></i>
+                </a>
                  <a href="<?php echo e(base_url('/admin/translations')); ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 disabled" aria-disabled="true" title="<?php echo e(__('admin_link_disabled_tooltip', [], $GLOBALS['current_language'] ?? 'en')); ?>">
                     <div class="d-flex align-items-center">
                         <i class="bi bi-translate me-3 fs-3 text-info align-middle"></i>

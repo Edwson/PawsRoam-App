@@ -94,6 +94,7 @@ $routes = [
     '/admin/businesses' => 'pages/admin/businesses.php',
     '/admin/pawssafe-providers' => 'pages/admin/pawssafe.php', // This was pages/admin/pawssafe.php, correct if file exists
     '/admin/reviews' => 'pages/admin/reviews.php', // New route for admin review management
+    '/admin/forums' => 'pages/admin/forums.php', // Placeholder for forum moderation dashboard
     '/admin/analytics' => 'pages/admin/analytics.php',
 
     // API endpoint examples (usually handled by a dedicated API router or .htaccess)
@@ -196,6 +197,18 @@ if (array_key_exists($requestedPath, $routes)) {
             $pageFound = true;
         } else {
             error_log("Routing error: topic-view.php not found for slug '{$matches[1]}'.");
+        }
+    }
+    // Forum Edit Post Page: /forums/edit-post/{id}
+    // This matches the new page pages/forums/edit-post.php which expects $_GET['id']
+    elseif (preg_match('#^/forums/edit-post/([0-9]+)$#', $requestedPath, $matches)) {
+        $_GET['id'] = (int)$matches[1]; // The edit-post.php page expects 'id'
+        $filePath = BASE_PATH . DS . 'pages' . DS . 'forums' . DS . 'edit-post.php';
+        if (file_exists($filePath)) {
+            $pageToLoad = $filePath;
+            $pageFound = true;
+        } else {
+            error_log("Routing error: edit-post.php not found for post ID '{$matches[1]}'.");
         }
     }
     // Forum New Topic Page: /forums/new-topic

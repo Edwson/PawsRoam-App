@@ -619,6 +619,92 @@ return [
     'button_submit_reply' => 'Submit Reply',
     'forum_reply_feature_stub_note' => '(Reply functionality is a stub for now)',
     'forum_topic_login_to_reply %s' => '%s to post a reply.', // %s is login link
+    'forum_post_by %s' => 'Posted by %s', // %s is username. For general posts.
+    'forum_post_edited_at %s' => 'edited %s', // %s is time ago, e.g., "edited 5 minutes ago"
+    'tooltip_edit_this_post' => 'Edit this post',
+    'button_edit_post_short' => 'Edit',
+
+    // Edit Post Page (pages/forums/edit-post.php)
+    'page_title_edit_post_default' => 'Edit Post',
+    'page_title_edit_post_dynamic' => 'Editing Post #%s', // %s is post ID
+    'error_invalid_post_id_for_edit' => 'Invalid post ID specified for editing.',
+    'error_post_edit_not_owner' => 'You do not have permission to edit this post.',
+    'error_post_edit_topic_locked' => 'This topic is locked, so posts cannot be edited.',
+    'error_post_edit_time_limit_exceeded' => 'The time limit for editing this post has passed.', // If implemented
+    'error_post_not_found_or_deleted' => 'The post you are trying to edit could not be found or has been deleted.',
+    'edit_post_label_content' => 'Your Post Content',
+    'button_save_changes' => 'Save Changes',
+    'error_cannot_edit_post_generic' => 'This post cannot be edited at this time.',
+    'button_back_to_topic_or_forums' => 'Back to Topic / Forums',
+    'success_post_updated_redirecting' => 'Post updated successfully! Redirecting you back to the topic...',
+    'error_post_update_failed_unknown' => 'Failed to update post. Please check your input and try again.',
+    'error_post_update_failed_network' => 'A network error occurred while updating the post. Please try again.',
+
+    // Edit Post API (api/v1/forums/posts/update.php)
+    'error_invalid_post_id_for_edit_api' => 'Invalid post ID provided for update.',
+    'error_post_content_required' => 'Post content cannot be empty.',
+    'error_post_content_min_length_detailed' => 'Post content must be at least %d characters long.', // %d for min length
+    'error_post_content_max_length_detailed' => 'Post content cannot exceed %d characters.', // %d for max length
+    'error_post_not_found_or_deleted_api' => 'Post not found or it may have been deleted.',
+    'error_post_edit_not_owner_api' => 'You are not authorized to edit this post.',
+    'error_post_edit_topic_locked_api' => 'Cannot edit post because the topic is locked.',
+    'error_post_edit_time_limit_exceeded_api' => 'The time window for editing this post has expired.', // If implemented
+    'success_post_updated' => 'Post updated successfully.',
+    'error_post_update_no_change_or_failed' => 'No changes were made to the post, or the update failed unexpectedly.',
+    'error_post_update_failed_db' => 'Failed to update post due to a database error. Please try again later.',
+
+    // Delete Post Functionality (API & Frontend)
+    'tooltip_delete_this_post' => 'Delete this post',
+    'button_delete_post_short' => 'Delete',
+    'modal_title_delete_post_confirm' => 'Confirm Post Deletion',
+    'modal_body_delete_post_warning' => 'Are you sure you want to delete this post? This action cannot be undone. If this is the first post of a topic, the entire topic will be deleted.',
+    'button_delete_confirm_post' => 'Yes, Delete Post',
+    'error_invalid_post_id_for_delete_api' => 'Invalid post ID provided for deletion.',
+    'error_post_not_found_or_already_deleted_api' => 'Post not found or it has already been deleted.',
+    'error_post_delete_not_owner_api' => 'You are not authorized to delete this post.',
+    'error_post_delete_topic_locked_api' => 'Cannot delete post because the topic is locked.',
+    'error_post_delete_failed_db' => 'Failed to delete post due to a database error.',
+    'success_topic_and_first_post_deleted' => 'The topic (including this first post) has been successfully deleted.',
+    'success_post_deleted' => 'Post successfully deleted.',
+    'success_topic_and_first_post_deleted_js' => 'Topic and its first post have been deleted.',
+    'success_post_deleted_js' => 'Post deleted successfully.',
+    'text_post_deleted_placeholder' => '[This post has been deleted]',
+    'error_post_delete_failed_js' => 'Failed to delete post. Please try again.',
+    'error_post_delete_network_js' => 'A network error occurred while trying to delete the post. Please try again.',
+
+    // Delete Topic Functionality (API & Frontend)
+    'tooltip_delete_this_topic' => 'Delete this entire topic',
+    'button_delete_topic_short' => 'Delete Topic',
+    'modal_title_delete_topic_confirm' => 'Confirm Topic Deletion',
+    'modal_body_delete_topic_warning' => 'Are you sure you want to delete this entire topic? This action cannot be undone and will remove all posts within it.',
+    'button_delete_confirm_topic' => 'Yes, Delete Topic',
+    'error_invalid_topic_id_for_delete_api' => 'Invalid topic ID provided for deletion.',
+    'error_topic_not_found_or_already_deleted_api' => 'Topic not found or it has already been deleted.',
+    'error_topic_delete_not_owner_api' => 'You are not authorized to delete this topic.',
+    'error_topic_delete_locked_by_admin_api' => 'This topic has been locked by an administrator and cannot be deleted by users.',
+    'error_topic_delete_failed_db' => 'Failed to delete topic due to a database error.',
+    'success_topic_deleted' => 'Topic successfully deleted.',
+    'success_topic_deleted_js' => 'Topic has been deleted successfully.',
+    'error_topic_delete_failed_js' => 'Failed to delete topic. Please try again.',
+    'error_topic_delete_network_js' => 'A network error occurred while trying to delete the topic. Please try again.',
+
+    // Admin Topic Locking/Unlocking
+    'tooltip_lock_this_topic' => 'Lock this topic (prevents new replies and edits)',
+    'tooltip_unlock_this_topic' => 'Unlock this topic (allows new replies and edits)',
+    'button_lock_topic_short' => 'Lock Topic',
+    'button_unlock_topic_short' => 'Unlock Topic',
+    'error_invalid_topic_id_for_lock_api' => 'Invalid topic ID provided for lock/unlock operation.',
+    'success_topic_locked' => 'Topic has been successfully locked.',
+    'success_topic_unlocked' => 'Topic has been successfully unlocked.',
+    'error_topic_lock_status_no_change' => 'Topic lock status was not changed (already in desired state or issue).',
+    'error_topic_lock_update_failed_db' => 'Failed to update topic lock status due to a database error.',
+    'error_topic_lock_toggle_failed_js' => 'Failed to toggle topic lock status.',
+    'error_topic_lock_toggle_network_js' => 'A network error occurred while trying to toggle topic lock status.',
+    'tooltip_reply_to_topic' => 'Post a reply to this topic', // Updated from _soon
+
+    // Admin Dashboard
+    'admin_link_forum_moderation' => 'Forum Moderation',
+    'admin_link_forum_moderation_desc' => 'Manage forum categories, topics, posts, and moderate content.',
 
     // Add more translations as features are developed...
 ];
