@@ -118,15 +118,52 @@ if (array_key_exists($requestedPath, $routes)) {
     // This part would require a more sophisticated router.
     // For now, direct matches only.
     // Example for a simple dynamic route:
+    // if (preg_match('#^/business/([a-zA-Z0-9_-]+)$#', $requestedPath, $matches)) {
+    //     $_GET['slug'] = $matches[1]; // or $_GET['id']
+    //     $filePath = BASE_PATH . DS . 'pages' . DS . 'business-detail.php';
+    //     if (file_exists($filePath)) {
+    //         $pageToLoad = $filePath;
+    //         $pageFound = true;
+    //     }
+    // }
+    // Add similar checks for other dynamic routes
+
+    // More specific routing for /business/{identifier}
+    // This will try to match /business/slug-name-here or /business/123
     if (preg_match('#^/business/([a-zA-Z0-9_-]+)$#', $requestedPath, $matches)) {
-        $_GET['slug'] = $matches[1]; // or $_GET['id']
+        $identifier = $matches[1];
+        if (is_numeric($identifier)) {
+            $_GET['id'] = (int)$identifier; // Pass as 'id' if numeric
+        } else {
+            $_GET['slug'] = $identifier; // Pass as 'slug' if string
+        }
         $filePath = BASE_PATH . DS . 'pages' . DS . 'business-detail.php';
         if (file_exists($filePath)) {
             $pageToLoad = $filePath;
             $pageFound = true;
+        } else {
+            error_log("Routing error: business-detail.php not found for identifier '{$identifier}'.");
         }
     }
-    // Add similar checks for other dynamic routes
+    // Example for /pets/add, /pets/edit/{id}, /pets/view/{id} (for future)
+    elseif (preg_match('#^/pets/add$#', $requestedPath)) {
+        // $filePath = BASE_PATH . DS . 'pages' . DS . 'pets' . DS . 'add-edit-pet.php'; // Assuming a combined add/edit form
+        // $_GET['action'] = 'add';
+        // if (file_exists($filePath)) { $pageToLoad = $filePath; $pageFound = true; }
+    } elseif (preg_match('#^/pets/(edit|view)/([0-9]+)$#', $requestedPath, $matches)) {
+        // $action = $matches[1]; // 'edit' or 'view'
+        // $pet_id = (int)$matches[2];
+        // $_GET['action'] = $action;
+        // $_GET['pet_id'] = $pet_id;
+        // if ($action === 'edit') {
+        //     $filePath = BASE_PATH . DS . 'pages' . DS . 'pets' . DS . 'add-edit-pet.php';
+        // } else { // view
+        //     $filePath = BASE_PATH . DS . 'pages' . DS . 'pets' . DS . 'view-pet.php';
+        // }
+        // if (file_exists($filePath)) { $pageToLoad = $filePath; $pageFound = true; }
+    }
+
+
 }
 
 

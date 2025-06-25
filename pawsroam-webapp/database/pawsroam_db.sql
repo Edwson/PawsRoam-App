@@ -19,7 +19,9 @@ CREATE TABLE users (
 CREATE TABLE businesses (
     id INT PRIMARY KEY AUTO_INCREMENT,
     owner_user_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL, -- Added: Default/primary business name
     slug VARCHAR(255) UNIQUE,
+    description TEXT NULL DEFAULT NULL, -- Added: Default short description
     latitude DECIMAL(10,8),
     longitude DECIMAL(11,8),
     pawstar_rating TINYINT(1) DEFAULT 0,
