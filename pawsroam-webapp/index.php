@@ -92,7 +92,8 @@ $routes = [
     '/admin/dashboard' => 'pages/admin/dashboard.php',
     '/admin/users' => 'pages/admin/users.php',
     '/admin/businesses' => 'pages/admin/businesses.php',
-    '/admin/pawssafe-providers' => 'pages/admin/pawssafe.php',
+    '/admin/pawssafe-providers' => 'pages/admin/pawssafe.php', // This was pages/admin/pawssafe.php, correct if file exists
+    '/admin/reviews' => 'pages/admin/reviews.php', // New route for admin review management
     '/admin/analytics' => 'pages/admin/analytics.php',
 
     // API endpoint examples (usually handled by a dedicated API router or .htaccess)

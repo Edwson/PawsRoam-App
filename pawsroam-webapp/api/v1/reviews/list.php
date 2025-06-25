@@ -47,21 +47,28 @@ if (!empty($errors)) {
 $offset = ($page - 1) * $limit;
 $reviews = [];
 $total_reviews = 0;
+$total_pages = 0;
 
 try {
     $db = Database::getInstance()->getConnection();
-    // For this stub, we'll just return dummy data.
-    // Actual query:
-    /*
-    // Get total count for pagination
+
+    // Get total count of approved reviews for pagination
     $stmt_count = $db->prepare("SELECT COUNT(*) FROM business_reviews WHERE business_id = :business_id AND status = 'approved'");
     $stmt_count->bindParam(':business_id', $business_id, PDO::PARAM_INT);
     $stmt_count->execute();
     $total_reviews = (int)$stmt_count->fetchColumn();
 
     if ($total_reviews > 0) {
+        $total_pages = ceil($total_reviews / $limit);
+        // Ensure current page is not out of bounds
+        if ($page > $total_pages) {
+            $page = $total_pages; // Or return empty if preferred for out-of-bounds pages
+            $offset = ($page - 1) * $limit; // Recalculate offset
+        }
+
         $stmt_reviews = $db->prepare(
-            "SELECT br.id, br.user_id, u.username AS author_username, br.rating, br.title, br.comment, br.review_photos, br.created_at
+            "SELECT br.id, br.user_id, u.username AS author_username, u.avatar_path AS author_avatar_path,
+                    br.rating, br.title, br.comment, br.review_photos, br.created_at
              FROM business_reviews br
              JOIN users u ON br.user_id = u.id
              WHERE br.business_id = :business_id AND br.status = 'approved'
@@ -72,40 +79,45 @@ try {
         $stmt_reviews->bindParam(':limit', $limit, PDO::PARAM_INT);
         $stmt_reviews->bindParam(':offset', $offset, PDO::PARAM_INT);
         $stmt_reviews->execute();
-        $reviews = $stmt_reviews->fetchAll(PDO::FETCH_ASSOC);
+        $reviews_data = $stmt_reviews->fetchAll(PDO::FETCH_ASSOC);
 
-        // Process review_photos if stored as JSON string
-        foreach ($reviews as &$review) {
-            if (!empty($review['review_photos'])) {
-                $photos = json_decode($review['review_photos'], true);
-                // Construct full URLs if paths are relative
-                if (is_array($photos) && defined('UPLOADS_BASE_URL')) {
-                    $review['review_photos_urls'] = array_map(function($path) {
-                        return rtrim(UPLOADS_BASE_URL, '/') . '/business-review-photos/' . ltrim($path, '/'); // Example path structure
-                    }, $photos);
-                } else {
-                     $review['review_photos_urls'] = [];
-                }
-            } else {
-                $review['review_photos_urls'] = [];
+        // Process reviews: format dates, construct photo URLs, author avatar URLs
+        $uploads_base_url = defined('UPLOADS_BASE_URL') ? rtrim(UPLOADS_BASE_URL, '/') : '';
+        $default_user_avatar = base_url('/assets/images/placeholders/avatar_placeholder_50.png'); // Example default
+
+        foreach ($reviews_data as $review_item) {
+            $author_avatar_url = $default_user_avatar;
+            if (!empty($review_item['author_avatar_path'])) {
+                // Assuming author_avatar_path is stored like 'user-avatars/USER_ID/filename.jpg'
+                $author_avatar_url = $uploads_base_url . '/' . ltrim($review_item['author_avatar_path'], '/');
             }
-            unset($review['review_photos']); // Don't send raw JSON string if URLs are generated
-        }
-        unset($review);
-    }
-    */
 
-    // Dummy data for stub:
-    if ($business_id == 1) { // Example: only business ID 1 has reviews for stub
-        $total_reviews = 2;
-        if ($page == 1) {
-             $reviews = [
-                [ 'id' => 101, 'user_id' => 2, 'author_username' => 'PetLover22', 'rating' => 5, 'title' => 'Amazing place!', 'comment' => 'My Fluffy loved it here, so many toys and friendly staff!', 'review_photos_urls' => [], 'created_at' => date("Y-m-d H:i:s", strtotime("-2 days")) ],
-                [ 'id' => 102, 'user_id' => 3, 'author_username' => 'DogDad88', 'rating' => 4, 'title' => 'Pretty good', 'comment' => 'Good spot, a bit crowded on weekends though.', 'review_photos_urls' => [], 'created_at' => date("Y-m-d H:i:s", strtotime("-5 days")) ],
+            $review_photo_urls = [];
+            if (!empty($review_item['review_photos'])) {
+                $photo_paths = json_decode($review_item['review_photos'], true);
+                if (is_array($photo_paths)) {
+                    foreach ($photo_paths as $path) {
+                        // Assuming review photos are stored like 'business-review-photos/BUSINESS_ID/USER_ID_OF_REVIEWER/filename.jpg'
+                        // For now, let's assume path is relative to 'uploads/' directly for simplicity if path includes full subdirs
+                        $review_photo_urls[] = $uploads_base_url . '/' . ltrim($path, '/');
+                    }
+                }
+            }
+
+            $reviews[] = [
+                'id' => (int)$review_item['id'],
+                'user_id' => (int)$review_item['user_id'],
+                'author_username' => e($review_item['author_username']),
+                'author_avatar_url' => e($author_avatar_url),
+                'rating' => (int)$review_item['rating'],
+                'title' => $review_item['title'] ? e($review_item['title']) : null,
+                'comment' => $review_item['comment'] ? nl2br(e($review_item['comment'])) : null, // nl2br for display
+                'review_photo_urls' => $review_photo_urls,
+                'created_at_formatted' => date("F j, Y, g:i A", strtotime($review_item['created_at'])), // Human-readable
+                'created_at_iso' => date(DateTime::ATOM, strtotime($review_item['created_at'])) // ISO 8601 for machines/JS
             ];
         }
     }
-
 
     http_response_code(200); // OK
     echo json_encode([
