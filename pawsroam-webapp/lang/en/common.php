@@ -287,6 +287,25 @@ return [
     'topic_last_post_by %s' => 'Last post by %s', // %s for username
     'topic_no_replies_yet' => 'No replies yet',
 
+    // New Topic Page (pages/forums/new-topic.php)
+    'page_title_new_topic' => 'Start a New Discussion Topic',
+    'error_forums_categories_load_failed' => 'Could not load forum categories. Please try again or contact support.',
+    'error_forums_no_categories_to_post_in' => 'There are currently no categories available to post a new topic in. Please check back later.',
+    'new_topic_form_title' => 'Create Your Discussion Topic',
+    'new_topic_select_category_placeholder' => '-- Select a Category for Your Topic --',
+    'new_topic_label_category' => 'Category',
+    'new_topic_placeholder_title' => 'Enter a clear and descriptive title for your topic',
+    'new_topic_label_title' => 'Topic Title',
+    'new_topic_placeholder_content' => "Share your thoughts, ask your question, or start the discussion here...\n\nTip: You can use basic Markdown for formatting (e.g., **bold**, *italics*, lists).",
+    'new_topic_label_content' => 'Your Message (This will be the first post)',
+    'button_create_topic' => 'Create Topic & Post',
+    'new_topic_error_unknown' => 'An unknown error occurred while trying to create your topic. Please try again.',
+    'new_topic_error_network' => 'A network error occurred. Please check your connection and try creating your topic again.',
+    'tooltip_start_new_discussion' => 'Start a new discussion topic', // Updated from _soon
+    'tooltip_start_new_topic_in_category %s' => 'Start a new topic in the %s category', // Updated from _soon
+    'tooltip_be_the_first_to_post_topic' => 'Be the first to post a topic in this category!', // Updated from _soon
+
+
     // Add Pet Page (pages/pets/add-pet.php)
     'page_title_add_pet' => 'Add New Pet Profile',
     'button_back_to_my_pets' => 'Back to My Pets',
