@@ -380,4 +380,70 @@ function calculate_pawstar_rating($total_recognitions) {
     }
 }
 
+
+/**
+ * Updates the aggregate review data (total_review_count, average_review_rating)
+ * for a specific business in the `businesses` table.
+ * This should be called when a review status changes to/from 'approved'.
+ *
+ * @param int $business_id The ID of the business to update.
+ * @return bool True on successful update, false on failure.
+ */
+function update_business_review_aggregates($business_id) {
+    if (!is_numeric($business_id) || $business_id <= 0) {
+        error_log("update_business_review_aggregates: Invalid business_id provided: {$business_id}");
+        return false;
+    }
+
+    try {
+        $db = Database::getInstance()->getConnection();
+
+        // Calculate new aggregates
+        $stmt_agg = $db->prepare(
+            "SELECT COUNT(*) as total_reviews, AVG(rating) as avg_rating
+             FROM business_reviews
+             WHERE business_id = :business_id AND status = 'approved'"
+        );
+        $stmt_agg->bindParam(':business_id', $business_id, PDO::PARAM_INT);
+        $stmt_agg->execute();
+        $aggregates = $stmt_agg->fetch(PDO::FETCH_ASSOC);
+
+        $total_review_count = 0;
+        $average_review_rating = 0.00;
+
+        if ($aggregates) {
+            $total_review_count = (int)$aggregates['total_reviews'];
+            // AVG returns NULL if no rows, or a string value. Cast to float.
+            $average_review_rating = ($aggregates['avg_rating'] === null) ? 0.00 : round((float)$aggregates['avg_rating'], 2);
+        }
+
+        // Update the businesses table
+        $stmt_update_biz = $db->prepare(
+            "UPDATE businesses
+             SET total_review_count = :total_review_count,
+                 average_review_rating = :average_review_rating
+             WHERE id = :business_id"
+        );
+        $stmt_update_biz->bindParam(':total_review_count', $total_review_count, PDO::PARAM_INT);
+        $stmt_update_biz->bindParam(':average_review_rating', $average_review_rating); // PDO should handle decimal correctly
+        $stmt_update_biz->bindParam(':business_id', $business_id, PDO::PARAM_INT);
+
+        if ($stmt_update_biz->execute()) {
+            error_log("Successfully updated review aggregates for business ID: {$business_id}. New count: {$total_review_count}, New avg rating: {$average_review_rating}");
+            return true;
+        } else {
+            error_log("Failed to update review aggregates for business ID: {$business_id}.");
+            return false;
+        }
+
+    } catch (PDOException $e) {
+        error_log("PDOException in update_business_review_aggregates for business ID {$business_id}: " . $e->getMessage());
+        return false;
+    } catch (Exception $e) {
+        error_log("Exception in update_business_review_aggregates for business ID {$business_id}: " . $e->getMessage());
+        return false;
+    }
+}
+
+
 ?>
