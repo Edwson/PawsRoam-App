@@ -47,7 +47,7 @@ if (is_array($categories)) {
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <h1 class="display-5 fw-bold text-primary-orange"><?php echo e($pageTitle); ?></h1>
         <?php if (is_logged_in()): ?>
-        <a href="<?php echo e(base_url('/forums/new-topic')); ?>" class="btn btn-primary btn-lg shadow-sm disabled" title="<?php echo e(__('tooltip_start_new_discussion_soon', [], $GLOBALS['current_language'] ?? 'en')); ?>" aria-disabled="true">
+        <a href="<?php echo e(base_url('/forums/new-topic')); ?>" class="btn btn-primary btn-lg shadow-sm" title="<?php echo e(__('tooltip_start_new_discussion', [], $GLOBALS['current_language'] ?? 'en')); // "Start a new discussion topic" ?>">
             <i class="bi bi-plus-circle-fill me-2"></i><?php echo e(__('button_start_new_discussion', [], $GLOBALS['current_language'] ?? 'en')); ?>
         </a>
         <?php else: ?>

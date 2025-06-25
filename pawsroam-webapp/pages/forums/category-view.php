@@ -98,7 +98,7 @@ if (empty($category_slug)) {
                 <?php endif; ?>
             </div>
             <?php if(is_logged_in()): ?>
-            <a href="<?php echo e(base_url('/forums/new-topic?category_id=' . $category['id'])); ?>" class="btn btn-primary shadow-sm disabled" title="<?php echo e(__('tooltip_start_new_topic_in_category_soon %s', [], $GLOBALS['current_language'] ?? 'en')); // sprintf("Start new topic in %s (Soon)", e($category['name'])) ?>" aria-disabled="true">
+            <a href="<?php echo e(base_url('/forums/new-topic?category_id=' . $category['id'])); ?>" class="btn btn-primary shadow-sm" title="<?php echo e(sprintf(__('tooltip_start_new_topic_in_category %s', [], $GLOBALS['current_language'] ?? 'en'), e($category['name']))); // "Start a new topic in [Category Name]" ?>">
                 <i class="bi bi-plus-lg me-2"></i><?php echo e(__('button_new_topic', [], $GLOBALS['current_language'] ?? 'en')); // "New Topic" ?>
             </a>
             <?php endif; ?>
@@ -110,7 +110,7 @@ if (empty($category_slug)) {
                 <h4 class="alert-heading"><?php echo e(__('forum_category_no_topics_title', [], $GLOBALS['current_language'] ?? 'en')); // "No Topics Yet!" ?></h4>
                 <p><?php echo e(__('forum_category_no_topics_message', [], $GLOBALS['current_language'] ?? 'en')); // "There are no topics in this category yet. Why not start the first one?" ?></p>
                 <?php if(is_logged_in()): ?>
-                 <a href="<?php echo e(base_url('/forums/new-topic?category_id=' . $category['id'])); ?>" class="btn btn-success mt-2 disabled" title="<?php echo e(__('tooltip_be_the_first_to_post_topic_soon', [], $GLOBALS['current_language'] ?? 'en')); // "Be the first to post! (Soon)" ?>" aria-disabled="true">
+                 <a href="<?php echo e(base_url('/forums/new-topic?category_id=' . $category['id'])); ?>" class="btn btn-success mt-2" title="<?php echo e(__('tooltip_be_the_first_to_post_topic', [], $GLOBALS['current_language'] ?? 'en')); // "Be the first to post a topic in this category!" ?>">
                     <i class="bi bi-chat-plus-fill me-2"></i><?php echo e(__('button_start_first_topic', [], $GLOBALS['current_language'] ?? 'en')); // "Start the First Topic" ?>
                  </a>
                 <?php endif; ?>

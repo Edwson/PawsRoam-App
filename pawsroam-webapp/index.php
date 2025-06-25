@@ -198,6 +198,16 @@ if (array_key_exists($requestedPath, $routes)) {
             error_log("Routing error: topic-view.php not found for slug '{$matches[1]}'.");
         }
     }
+    // Forum New Topic Page: /forums/new-topic
+    elseif ($requestedPath === '/forums/new-topic') {
+        $filePath = BASE_PATH . DS . 'pages' . DS . 'forums' . DS . 'new-topic.php';
+        if (file_exists($filePath)) {
+            $pageToLoad = $filePath;
+            $pageFound = true;
+        } else {
+            error_log("Routing error: new-topic.php not found for route '/forums/new-topic'.");
+        }
+    }
     // Example for /pets/add, /pets/edit/{id}, /pets/view/{id} (for future)
     // elseif (preg_match('#^/pets/add$#', $requestedPath)) {
     //     // $filePath = BASE_PATH . DS . 'pages' . DS . 'pets' . DS . 'add-edit-pet.php'; // Assuming a combined add/edit form
