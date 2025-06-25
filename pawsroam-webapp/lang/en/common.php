@@ -424,6 +424,27 @@ return [
     'edit_pet_api_failed_db' => 'Failed to update pet profile due to a database error. Please try again.',
     // Validation errors (e.g., error_pet_name_required) are often reused from Add Pet API
 
+    // Admin Review Management Page (pages/admin/reviews.php)
+    'page_title_admin_reviews' => 'Review Management - Admin',
+    'admin_reviews_description' => 'Moderate user-submitted reviews for businesses. Approve, reject, or edit reviews.',
+    'admin_reviews_filter_title' => 'Filter Reviews',
+    'admin_reviews_filter_status_label' => 'Status',
+    'admin_reviews_filter_status_all' => 'All Statuses',
+    'admin_reviews_filter_status_pending' => 'Pending Approval',
+    'admin_reviews_filter_status_approved' => 'Approved',
+    'admin_reviews_filter_status_rejected' => 'Rejected',
+    'admin_reviews_filter_business_label' => 'Business Name',
+    'admin_reviews_filter_business_placeholder' => 'Filter by Business Name...',
+    'admin_reviews_filter_button_tooltip' => 'Filtering functionality is not yet implemented.',
+    // 'button_filter' => 'Filter', // Reusable
+    'admin_reviews_list_title_pending' => 'Pending Reviews', // Example title, will be dynamic
+    'admin_reviews_placeholder_text' => 'A list of reviews with actions to approve/reject will appear here. This functionality is currently a stub.',
+    'admin_reviews_pagination_placeholder' => 'Pagination for reviews will appear here.',
+    'admin_link_manage_reviews_tooltip' => 'Moderate and manage user reviews', // For dashboard link
+    'admin_link_manage_reviews' => 'Manage Reviews', // For dashboard link
+    'admin_link_manage_reviews_desc' => 'Approve, reject, or edit user-submitted reviews.', // For dashboard link
+
+
     // View Pet Page (pages/pets/view-pet.php)
     'page_title_view_pet_default' => 'View Pet Profile',
     'error_invalid_pet_id_for_view' => 'No pet specified or invalid ID for viewing.',
@@ -442,6 +463,17 @@ return [
     'error_review_already_submitted' => 'You have already submitted a review for this business. You may be able to edit your existing review.',
     'success_review_submitted_pending' => 'Your review has been submitted successfully and is now pending approval. Thank you for your feedback!',
     'error_review_invalid_business_id_list' => 'A valid business ID is required to list reviews.',
+    'error_review_business_not_found_or_inactive' => 'The business you are trying to review cannot be found or is not currently active.',
+    'error_review_comment_too_short_if_provided' => 'If you provide a comment, it must be at least 10 characters long.',
+    'error_review_title_or_comment_required' => 'Please provide either a review title or a comment.',
+
+    // Admin Review Management API Stubs (api/v1/admin/reviews/*)
+    'error_admin_invalid_review_status_filter' => 'Invalid status filter provided for reviews.',
+    'error_admin_invalid_review_id_for_update' => 'Invalid review ID provided for status update.',
+    'error_admin_invalid_new_status_for_review' => 'Invalid new status provided for the review. Must be "approved" or "rejected".',
+    'success_admin_review_status_updated %s %s' => 'Review ID %s status has been updated to %s.', // %s for review_id, %s for new_status
+    'error_admin_review_not_found_or_no_change' => 'Review not found, or its status was already set to the new value.',
+
 
     // User Avatar Upload (pages/profile.php JS and api/v1/user/avatar-upload.php)
     'profile_button_select_avatar' => 'Select New Avatar',
@@ -454,6 +486,41 @@ return [
     'error_avatar_upload_auth_failed' => 'Avatar upload authorization failed. Please try logging in again.',
     'profile_success_avatar_uploaded_api' => 'Avatar uploaded and updated successfully!', // API specific success
     'profile_error_avatar_db_update_failed' => 'Failed to update profile with the new avatar due to a database error.',
+
+    // Review Submission Form (pages/business-detail.php)
+    'review_already_submitted_title' => "You've Reviewed This Place!",
+    'review_your_rating_text %s' => "Your rating: %s stars.", // %s is rating number
+    'review_status_pending_message' => "Your review is currently pending approval by our team.",
+    'review_status_approved_message' => "Your review is live! Thank you for sharing.",
+    'review_edit_functionality_soon_text' => "(Functionality to edit your review will be available soon.)",
+    'write_your_review_title' => "Share Your Experience",
+    'review_rating_label' => "Your Overall Rating:",
+    '%d stars' => '%d stars', // For star rating titles e.g., "5 stars"
+    'review_title_placeholder' => "e.g., Best dog park ever!",
+    'review_title_label' => "Review Title (Optional)",
+    'review_comment_placeholder' => "Tell us about your experience, what you liked, and any tips for other pet owners...",
+    'review_comment_label' => "Your Review / Comment",
+    'review_submit_button' => "Submit Review",
+    'review_login_link_text' => "Log in",
+    'review_register_link_text' => "create an account",
+    'review_login_prompt %s or %s' => "%s or %s to share your experience!", // %s are links
+    'reviews_loading_placeholder' => "(Loading reviews...)", // For the review list area
+    'review_submitted_thank_you_title' => "Thank You!", // JS success message title
+    // 'success_review_submitted_pending' is already defined for API, can be reused for JS
+    'review_submit_failed_unknown' => "Failed to submit review. Please check the form and try again.", // JS general error
+    'error_validation_summary' => "Please correct the following errors:", // For JS if multiple errors from API
+    'review_submit_failed_network' => "A network error occurred while submitting your review. Please try again.", // JS network error
+    'review_status_rejected_message' => "Your previous review for this place was not approved.", // For display if existing review is rejected
+
+    // Display Reviews (pages/business-detail.php JS)
+    'button_load_more_reviews' => 'Load More Reviews',
+    'reviews_none_found_message' => 'No reviews yet for this place. Be the first to share your experience!',
+    'reviews_load_failed_network' => 'Could not load reviews due to a network error. Please try refreshing the page.',
+    '%d/3 PawStars' => '%d/3 PawStars', // For PawStar title attribute (e.g., "2/3 PawStars")
+    // '%d stars' is already defined for rating input, can be reused for display if it's 1-5 for reviews.
+    // Let's add a specific one for review display if needed:
+    'review_rating_display %d/5' => '%d/5 Stars', // For displayed review rating, e.g. "4/5 Stars"
+
 
     // Add more translations as features are developed...
 ];

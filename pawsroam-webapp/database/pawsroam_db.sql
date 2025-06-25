@@ -97,9 +97,9 @@ CREATE TABLE business_reviews (
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Modify businesses table to add review aggregate columns (for future calculation)
--- ALTER TABLE businesses
--- ADD COLUMN average_review_rating DECIMAL(3,2) DEFAULT 0.00 AFTER pawstar_rating,
--- ADD COLUMN total_review_count INT DEFAULT 0 AFTER average_review_rating;
+ALTER TABLE businesses
+ADD COLUMN average_review_rating DECIMAL(3,2) DEFAULT 0.00 COMMENT 'Calculated average from approved user reviews (1-5)' AFTER pawstar_rating,
+ADD COLUMN total_review_count INT DEFAULT 0 COMMENT 'Total count of approved user reviews' AFTER average_review_rating;
 
 
 -- Pet profiles

@@ -173,6 +173,16 @@ if (has_role('super_admin')) {
                     </div>
                     <i class="bi bi-chevron-right fs-5 text-muted"></i>
                 </a>
+                <a href="<?php echo e(base_url('/admin/reviews')); ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3" title="<?php echo e(__('admin_link_manage_reviews_tooltip', [], $GLOBALS['current_language'] ?? 'en')); // "Moderate and manage user reviews" ?>">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-chat-square-text-fill me-3 fs-3 text-primary align-middle"></i>
+                        <div>
+                            <span class="fw-semibold fs-5"><?php echo e(__('admin_link_manage_reviews', [], $GLOBALS['current_language'] ?? 'en')); // "Manage Reviews" ?></span>
+                            <small class="d-block text-muted"><?php echo e(__('admin_link_manage_reviews_desc', [], $GLOBALS['current_language'] ?? 'en')); // "Approve, reject, or edit user-submitted reviews." ?></small>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right fs-5 text-muted"></i>
+                </a>
                  <a href="<?php echo e(base_url('/admin/translations')); ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 disabled" aria-disabled="true" title="<?php echo e(__('admin_link_disabled_tooltip', [], $GLOBALS['current_language'] ?? 'en')); ?>">
                     <div class="d-flex align-items-center">
                         <i class="bi bi-translate me-3 fs-3 text-info align-middle"></i>
