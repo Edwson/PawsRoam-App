@@ -162,6 +162,19 @@ if (has_role('super_admin')) {
                 </a>
             <?php endif; ?>
 
+            <?php if (has_role(['super_admin', 'business_admin'])): ?>
+                <a href="<?php echo e(get_route_url('admin_coupons_manage')); ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3" title="<?php echo e(__('admin_link_manage_coupons_tooltip_stub', [], $GLOBALS['current_language'] ?? 'en')); ?>">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-tags-fill me-3 fs-3 text-warning align-middle"></i> <?php // Using tags icon for coupons ?>
+                        <div>
+                            <span class="fw-semibold fs-5"><?php echo e(__('admin_link_manage_coupons_stub', [], $GLOBALS['current_language'] ?? 'en')); ?></span>
+                            <small class="d-block text-muted"><?php echo e(__('admin_link_manage_coupons_desc_stub', [], $GLOBALS['current_language'] ?? 'en')); ?></small>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right fs-5 text-muted"></i>
+                </a>
+            <?php endif; ?>
+
             <?php if (has_role('super_admin')): ?>
                 <a href="<?php echo e(base_url('/admin/pawssafe')); ?>" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 disabled" aria-disabled="true" title="<?php echo e(__('admin_link_disabled_tooltip', [], $GLOBALS['current_language'] ?? 'en')); ?>">
                     <div class="d-flex align-items-center">
