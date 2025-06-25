@@ -94,13 +94,34 @@ if (empty($topic_slug)) {
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h2 fw-bold text-primary-orange mb-0"><?php echo e($topic['title']); ?></h1>
-            <?php if (is_logged_in() && !$topic['is_locked']): ?>
-            <a href="#replyForm" class="btn btn-primary shadow-sm disabled" title="<?php echo e(__('tooltip_reply_to_topic_soon', [], $GLOBALS['current_language'] ?? 'en')); // "Reply to this topic (Feature coming soon)" ?>" aria-disabled="true">
-                <i class="bi bi-reply-fill me-2"></i><?php echo e(__('button_reply_to_topic', [], $GLOBALS['current_language'] ?? 'en')); // "Reply to Topic" ?>
-            </a>
-            <?php elseif ($topic['is_locked']): ?>
-            <span class="badge bg-warning text-dark p-2"><i class="bi bi-lock-fill me-1"></i> <?php echo e(__('topic_is_locked_message', [], $GLOBALS['current_language'] ?? 'en')); // "Topic Locked" ?></span>
-            <?php endif; ?>
+            <div class="d-flex align-items-center">
+                <?php if (is_logged_in() && current_user_id() === $topic['user_id'] /* && !has_role('admin') etc. */ ): ?>
+                    <button type="button" class="btn btn-sm btn-outline-danger me-2" id="deleteTopicBtn"
+                            data-topic-id="<?php echo e($topic['id']); ?>"
+                            data-category-slug="<?php echo e($category['slug']); ?>"
+                            data-bs-toggle="modal" data-bs-target="#deleteTopicConfirmModal"
+                            title="<?= __('tooltip_delete_this_topic', [], $current_language) ?>">
+                        <i class="fas fa-trash-alt"></i> <span class="d-none d-md-inline"><?= __('button_delete_topic_short', [], $current_language) ?></span>
+                    </button>
+                <?php endif; ?>
+                <?php if (has_role(['super_admin', 'admin'])): ?>
+                    <button type="button" class="btn btn-sm btn-outline-warning me-2" id="toggleLockTopicBtn"
+                            data-topic-id="<?php echo e($topic['id']); ?>"
+                            data-is-locked="<?php echo e($topic['is_locked'] ? '1' : '0'); ?>"
+                            title="<?= $topic['is_locked'] ? __('tooltip_unlock_this_topic', [], $current_language) : __('tooltip_lock_this_topic', [], $current_language) ?>">
+                        <i class="fas <?= $topic['is_locked'] ? 'fa-unlock-alt' : 'fa-lock' ?>"></i>
+                        <span class="d-none d-md-inline toggle-lock-text">
+                            <?= $topic['is_locked'] ? __('button_unlock_topic_short', [], $current_language) : __('button_lock_topic_short', [], $current_language) ?>
+                        </span>
+                    </button>
+                <?php endif; ?>
+                <?php if (is_logged_in() && !$topic['is_locked']): ?>
+                <a href="#replyForm" id="replyToTopicLink" class="btn btn-primary shadow-sm <?= ($topic['is_locked'] ? 'disabled' : '') // Initial state based on PHP ?>" title="<?php echo e(__('tooltip_reply_to_topic', [], $GLOBALS['current_language'] ?? 'en')); ?>" aria-disabled="<?= ($topic['is_locked'] ? 'true' : 'false') ?>">
+                    <i class="bi bi-reply-fill me-2"></i><?php echo e(__('button_reply_to_topic', [], $GLOBALS['current_language'] ?? 'en')); // "Reply to Topic" ?>
+                </a>
+                <?php endif; // removed elseif for locked message, as it's handled by reply link state and a new dynamic message area ?>
+                <span id="topicLockedStatusMessage" class="badge bg-warning text-dark p-2 ms-2 <?= $topic['is_locked'] ? '' : 'd-none' ?>"><i class="bi bi-lock-fill me-1"></i> <?= __('topic_is_locked_message', [], $GLOBALS['current_language'] ?? 'en') ?></span>
+            </div>
         </div>
 
         <?php if (empty($posts) && $pagination['total_items'] === 0): ?>
@@ -127,8 +148,24 @@ if (empty($topic_slug)) {
                             <small class="text-muted" title="<?php echo e(date(DateTime::ATOM, strtotime($post['created_at']))); ?>">
                                 <?php echo e(date("M j, Y, g:i A", strtotime($post['created_at']))); ?>
                             </small>
+                            <?php if ($post['updated_at'] && $post['updated_at'] !== $post['created_at']): ?>
+                                <small class="text-muted ms-2 fst-italic">(<?= __('forum_post_edited_at %s', [display_time_ago($post['updated_at'], $current_language)], $current_language) ?>)</small>
+                            <?php endif; ?>
                         </div>
-                        <small class="text-muted">#<?php echo e($post['id']); // Post ID or running number ?></small>
+                        <div class="d-flex align-items-center">
+                            <?php if (is_logged_in() && $post['user_id'] === current_user_id() && !$topic['is_locked']): ?>
+                                <a href="<?= get_route_url('edit_post', ['id' => $post['id']]) ?>" class="btn btn-sm btn-outline-secondary me-2" title="<?= __('tooltip_edit_this_post', [], $current_language) ?>">
+                                    <i class="fas fa-edit"></i> <span class="d-none d-md-inline"><?= __('button_edit_post_short', [], $current_language) ?></span>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger delete-post-btn"
+                                        data-post-id="<?php echo e($post['id']); ?>"
+                                        data-bs-toggle="modal" data-bs-target="#deletePostConfirmModal"
+                                        title="<?= __('tooltip_delete_this_post', [], $current_language) ?>">
+                                    <i class="fas fa-trash-alt"></i> <span class="d-none d-md-inline"><?= __('button_delete_post_short', [], $current_language) ?></span>
+                                </button>
+                            <?php endif; ?>
+                            <small class="text-muted">#<?php echo e($post['id']); // Post ID or running number ?></small>
+                        </div>
                     </div>
                     <div class="card-body p-3 forum-post-content">
                         <?php echo nl2br(e($post['content'])); // Basic display, Markdown later ?>
@@ -169,11 +206,11 @@ if (empty($topic_slug)) {
                         <?php echo csrf_input_field(); ?>
                         <input type="hidden" name="topic_id" value="<?php echo e($topic['id']); ?>">
                         <div class="mb-3">
-                            <textarea class="form-control" name="content" rows="5" placeholder="<?php echo e(__('forum_topic_reply_placeholder', [], $GLOBALS['current_language'] ?? 'en')); // "Enter your reply..." ?>" required disabled></textarea>
+                            <textarea class="form-control" name="content" rows="5" placeholder="<?php echo e(__('forum_topic_reply_placeholder', [], $GLOBALS['current_language'] ?? 'en')); // "Enter your reply..." ?>" required <?= $topic['is_locked'] ? 'disabled' : '' ?>></textarea>
                             <small class="form-text text-muted"><?php echo e(__('forum_topic_markdown_supported_note', [], $GLOBALS['current_language'] ?? 'en')); // "Basic Markdown is supported. (Feature coming soon)" ?></small>
                         </div>
-                        <button type="submit" class="btn btn-primary disabled" aria-disabled="true"><?php echo e(__('button_submit_reply', [], $GLOBALS['current_language'] ?? 'en')); // "Submit Reply" ?></button>
-                         <small class="ms-2 text-muted"><?php echo e(__('forum_reply_feature_stub_note', [], $GLOBALS['current_language'] ?? 'en')); // "(Reply functionality is a stub)" ?></small>
+                        <button type="submit" class="btn btn-primary" <?= $topic['is_locked'] ? 'disabled' : '' ?> aria-disabled="<?= $topic['is_locked'] ? 'true' : 'false' ?>"><?php echo e(__('button_submit_reply', [], $GLOBALS['current_language'] ?? 'en')); // "Submit Reply" ?></button>
+                         <small class="ms-2 text-muted"><?php echo e(__('forum_reply_feature_stub_note', [], $GLOBALS['current_language'] ?? 'en')); // "(Reply functionality is a stub for now, will be enabled with JS later)" ?></small>
                     </form>
                 <?php endif; ?>
             <?php else: ?>
@@ -187,8 +224,301 @@ if (empty($topic_slug)) {
             <?php endif; ?>
         </section>
     <?php endif; ?>
+
+    <!-- Delete Post Confirmation Modal -->
+    <div class="modal fade" id="deletePostConfirmModal" tabindex="-1" aria-labelledby="deletePostConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deletePostConfirmModalLabel"><?= __('modal_title_delete_post_confirm', [], $current_language) ?></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= __('button_close', [], $current_language) ?>"></button>
+                </div>
+                <div class="modal-body">
+                    <?= __('modal_body_delete_post_warning', [], $current_language) ?>
+                    <span id="deletePostIdDisplay" class="fw-bold"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= __('button_cancel', [], $current_language) ?></button>
+                    <button type="button" class="btn btn-danger" id="confirmDeletePostBtn"><?= __('button_delete_confirm_post', [], $current_language) ?></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Topic Confirmation Modal -->
+    <div class="modal fade" id="deleteTopicConfirmModal" tabindex="-1" aria-labelledby="deleteTopicConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteTopicConfirmModalLabel"><?= __('modal_title_delete_topic_confirm', [], $current_language) ?></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= __('button_close', [], $current_language) ?>"></button>
+                </div>
+                <div class="modal-body">
+                    <?= __('modal_body_delete_topic_warning', [], $current_language) ?>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= __('button_cancel', [], $current_language) ?></button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteTopicBtn"><?= __('button_delete_confirm_topic', [], $current_language) ?></button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <style>.forum-post-content { white-space: pre-wrap; word-break: break-word; }</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deletePostModalEl = document.getElementById('deletePostConfirmModal');
+    const deletePostModal = deletePostModalEl ? new bootstrap.Modal(deletePostModalEl) : null;
+    let postIdToDelete = null;
+
+    const deleteTopicModalEl = document.getElementById('deleteTopicConfirmModal');
+    const deleteTopicModal = deleteTopicModalEl ? new bootstrap.Modal(deleteTopicModalEl) : null;
+    let topicIdToDelete = null;
+    let categorySlugForRedirect = null;
+
+    document.querySelectorAll('.delete-post-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            postIdToDelete = this.dataset.postId;
+            // Optionally display post ID in modal: document.getElementById('deletePostIdDisplay').textContent = `#${postIdToDelete}`;
+        });
+    });
+
+    const confirmDeletePostButton = document.getElementById('confirmDeletePostBtn');
+    if (confirmDeletePostButton) {
+        confirmDeletePostButton.addEventListener('click', function() {
+            if (!postIdToDelete) return;
+
+            const submitButton = this;
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <?= __('state_text_processing', [], $current_language) ?>`;
+
+            const formData = new FormData();
+            formData.append('topic_id', topicIdToDelete);
+            formData.append('csrf_token', '<?= htmlspecialchars(generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>');
+
+            fetch('<?= get_api_route_url('v1/forums/topics/delete') ?>', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if(deleteTopicModal) deleteTopicModal.hide();
+                    showGlobalSuccessAlert(data.message || '<?= __('success_topic_deleted_js', [], $current_language) ?>');
+                    // Redirect to the category page after deletion
+                    setTimeout(() => {
+                        const categoryViewUrl = `<?= get_route_url('view_category', ['slug' => 'PLACEHOLDER_CAT_SLUG']) ?>`;
+                        window.location.href = categoryViewUrl.replace('PLACEHOLDER_CAT_SLUG', categorySlugForRedirect || '<?= $category['slug'] ?? 'general' ?>');
+                    }, 2500);
+                } else {
+                    showGlobalErrorAlert(data.message || '<?= __('error_topic_delete_failed_js', [], $current_language) ?>');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting topic:', error);
+                showGlobalErrorAlert('<?= __('error_topic_delete_network_js', [], $current_language) ?>');
+            })
+            .finally(() => {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+                topicIdToDelete = null;
+                categorySlugForRedirect = null;
+            });
+        });
+    }
+
+    // Toggle Lock Topic Logic
+    const toggleLockTopicButton = document.getElementById('toggleLockTopicBtn');
+    if (toggleLockTopicButton) {
+        toggleLockTopicButton.addEventListener('click', function() {
+            const topicId = this.dataset.topicId;
+            const currentlyLocked = this.dataset.isLocked === '1';
+            const button = this;
+            const buttonIcon = button.querySelector('i');
+            const buttonTextSpan = button.querySelector('.toggle-lock-text');
+
+            const originalButtonHTML = button.innerHTML; // Save full HTML to restore icon and text easily
+            button.disabled = true;
+            button.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <?= __('state_text_processing', [], $current_language) ?>`;
+
+            const formData = new FormData();
+            formData.append('topic_id', topicId);
+            formData.append('csrf_token', '<?= htmlspecialchars(generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>');
+
+            fetch('<?= get_api_route_url('v1/admin/forums/topics/toggle-lock') ?>', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showGlobalSuccessAlert(data.message);
+                    const newLockedState = data.is_locked;
+                    button.dataset.isLocked = newLockedState ? '1' : '0';
+
+                    // Update button appearance
+                    if (buttonIcon) buttonIcon.className = `fas ${newLockedState ? 'fa-unlock-alt' : 'fa-lock'}`;
+                    if (buttonTextSpan) buttonTextSpan.textContent = newLockedState ? '<?= __('button_unlock_topic_short', [], $current_language) ?>' : '<?= __('button_lock_topic_short', [], $current_language) ?>';
+                    button.title = newLockedState ? '<?= __('tooltip_unlock_this_topic', [], $current_language) ?>' : '<?= __('tooltip_lock_this_topic', [], $current_language) ?>';
+
+                    // Update UI elements based on new lock state
+                    updatePageForLockState(newLockedState);
+
+                } else {
+                    showGlobalErrorAlert(data.message || '<?= __('error_topic_lock_toggle_failed_js', [], $current_language) ?>');
+                    // Restore button to its state before click if failed but API gave a different current state
+                    if (data.hasOwnProperty('is_locked') && (data.is_locked ? '1' : '0') !== button.dataset.isLocked) {
+                         button.dataset.isLocked = data.is_locked ? '1' : '0';
+                         if (buttonIcon) buttonIcon.className = `fas ${data.is_locked ? 'fa-unlock-alt' : 'fa-lock'}`;
+                         if (buttonTextSpan) buttonTextSpan.textContent = data.is_locked ? '<?= __('button_unlock_topic_short', [], $current_language) ?>' : '<?= __('button_lock_topic_short', [], $current_language) ?>';
+                         button.title = data.is_locked ? '<?= __('tooltip_unlock_this_topic', [], $current_language) ?>' : '<?= __('tooltip_lock_this_topic', [], $current_language) ?>';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error toggling topic lock:', error);
+                showGlobalErrorAlert('<?= __('error_topic_lock_toggle_network_js', [], $current_language) ?>');
+            })
+            .finally(() => {
+                button.disabled = false;
+                // Restore specific parts instead of full innerHTML to keep spinner logic simple
+                const isLockedAfterAttempt = button.dataset.isLocked === '1';
+                if (buttonIcon) buttonIcon.className = `fas ${isLockedAfterAttempt ? 'fa-unlock-alt' : 'fa-lock'}`;
+                if (buttonTextSpan) buttonTextSpan.textContent = isLockedAfterAttempt ? '<?= __('button_unlock_topic_short', [], $current_language) ?>' : '<?= __('button_lock_topic_short', [], $current_language) ?>';
+                // Spinner is removed by not re-adding it here. If you had text only, then set button.innerHTML = originalButtonHTML or specific text.
+            });
+        });
+    }
+
+    function updatePageForLockState(isLocked) {
+        const replyToTopicLink = document.getElementById('replyToTopicLink');
+        const replyFormSection = document.getElementById('replyForm'); // Assuming the whole section
+        const topicLockedStatusMessage = document.getElementById('topicLockedStatusMessage');
+
+        if (replyToTopicLink) {
+            if (isLocked) {
+                replyToTopicLink.classList.add('disabled');
+                replyToTopicLink.setAttribute('aria-disabled', 'true');
+            } else {
+                replyToTopicLink.classList.remove('disabled');
+                replyToTopicLink.removeAttribute('aria-disabled');
+            }
+        }
+
+        if (replyFormSection) { // Show/hide reply form
+             const replyTextarea = replyFormSection.querySelector('textarea');
+             const replySubmitButton = replyFormSection.querySelector('button[type="submit"]');
+             if (isLocked) {
+                 if(replyTextarea) replyTextarea.disabled = true;
+                 if(replySubmitButton) replySubmitButton.disabled = true;
+                 // replyFormSection.classList.add('d-none'); // Or just disable inputs
+             } else {
+                 if(replyTextarea) replyTextarea.disabled = false;
+                 if(replySubmitButton) replySubmitButton.disabled = false;
+                 // replyFormSection.classList.remove('d-none');
+             }
+        }
+
+        if (topicLockedStatusMessage) {
+            if (isLocked) {
+                topicLockedStatusMessage.classList.remove('d-none');
+            } else {
+                topicLockedStatusMessage.classList.add('d-none');
+            }
+        }
+
+        // Disable/Enable Edit/Delete buttons for all posts
+        document.querySelectorAll('.edit-post-btn, .delete-post-btn').forEach(btn => {
+            // We only disable them if the topic is locked.
+            // Re-enabling them depends on user ownership, which is checked by PHP on page load.
+            // So, if topic is unlocked, these buttons become active *if* PHP rendered them (i.e., user is owner).
+            // If topic is locked, they are always disabled.
+            btn.disabled = isLocked;
+            if(isLocked) {
+                btn.classList.add('disabled'); // Visual cue for Bootstrap
+                btn.setAttribute('aria-disabled', 'true');
+            } else {
+                // Check if it was originally enabled by PHP (i.e., user is owner)
+                // This is tricky without storing original state. For now, just remove disabled.
+                // PHP will ensure only owners see enabled buttons initially.
+                // If a non-owner admin unlocks, buttons for other users remain hidden/disabled by PHP.
+                btn.classList.remove('disabled');
+                btn.removeAttribute('aria-disabled');
+            }
+        });
+    }
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <?= __('state_text_processing', [], $current_language) ?>`;
+
+        const formData = new FormData();
+        formData.append('post_id', postIdToDelete);
+        formData.append('csrf_token', '<?= htmlspecialchars(generate_csrf_token(), ENT_QUOTES, 'UTF-8') ?>'); // Get fresh CSRF
+
+        fetch('<?= get_api_route_url('v1/forums/posts/delete') ?>', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                deletePostModal.hide();
+                const postElement = document.getElementById('post-' + postIdToDelete);
+                if (postElement) {
+                    if (data.is_first_post && data.topic_deleted) {
+                        // If first post and topic deleted, redirect or show message and remove all posts.
+                        // For now, simple page reload or redirect to category.
+                        showGlobalSuccessAlert(data.message || '<?= __('success_topic_and_first_post_deleted_js', [], $current_language) ?>');
+                        setTimeout(() => window.location.href = '<?= get_route_url('view_category', ['slug' => $category['slug']]) ?>', 2500);
+                    } else {
+                        // Soft delete effect: fade out and replace content, or just remove
+                        postElement.style.opacity = '0.5';
+                        postElement.innerHTML = `<div class="card-body text-muted fst-italic p-3"><?= __('text_post_deleted_placeholder', [], $current_language) ?></div>`;
+                         showGlobalSuccessAlert(data.message || '<?= __('success_post_deleted_js', [], $current_language) ?>');
+                        // Consider decrementing reply count if displayed dynamically
+                    }
+                }
+            } else {
+                showGlobalErrorAlert(data.message || '<?= __('error_post_delete_failed_js', [], $current_language) ?>');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting post:', error);
+            showGlobalErrorAlert('<?= __('error_post_delete_network_js', [], $current_language) ?>');
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+            postIdToDelete = null;
+        });
+    });
+
+    // Helper function to show a global success alert (you might have a more robust system for this)
+    function showGlobalSuccessAlert(message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 end-0 m-3 p-3';
+        alertDiv.style.zIndex = '1055'; // Ensure it's above modals if any still linger
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+        document.body.appendChild(alertDiv);
+        setTimeout(() => bootstrap.Alert.getOrCreateInstance(alertDiv).close(), 5000);
+    }
+
+    // Helper function to show a global error alert
+    function showGlobalErrorAlert(message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed top-0 end-0 m-3 p-3';
+        alertDiv.style.zIndex = '1055';
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+        document.body.appendChild(alertDiv);
+        setTimeout(() => bootstrap.Alert.getOrCreateInstance(alertDiv).close(), 7000);
+    }
+});
+</script>
+
 <?php
 // Translation placeholders
 // __('page_title_forum_topic_default', [], $GLOBALS['current_language'] ?? 'en');
