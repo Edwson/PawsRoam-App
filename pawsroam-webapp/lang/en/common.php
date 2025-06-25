@@ -265,5 +265,109 @@ return [
     'admin_link_disabled_tooltip' => 'This feature is under development and will be available soon!',
     'admin_dashboard_links_stub_note' => '(Note: Management links are placeholders for upcoming features.)',
 
+    // Add Pet Page (pages/pets/add-pet.php)
+    'page_title_add_pet' => 'Add New Pet Profile',
+    'button_back_to_my_pets' => 'Back to My Pets',
+    'add_pet_form_title' => 'Tell Us About Your Pet',
+    'add_pet_section_basic_info' => 'Basic Information',
+    'placeholder_pet_name' => "Enter your pet's name",
+    'label_pet_name' => "Pet's Name",
+    'select_option_placeholder' => '-- Select ', // Used as prefix, e.g., "-- Select Species --"
+    'label_pet_species' => 'Species',
+    'pet_species_dog' => 'Dog',
+    'pet_species_cat' => 'Cat',
+    'pet_species_bird' => 'Bird',
+    'pet_species_rabbit' => 'Rabbit',
+    'pet_species_other' => 'Other',
+    'placeholder_pet_breed' => 'e.g., Golden Retriever, Siamese (Optional)',
+    'label_pet_breed' => 'Breed (Optional)',
+    'label_pet_birthdate' => 'Birthdate (Optional)',
+    'add_pet_section_physical_details' => 'Physical Details',
+    'label_pet_size' => 'Size (Optional)',
+    'pet_size_label' => 'Size', // For the "-- Select Size --" placeholder part
+    'pet_size_small' => 'Small (e.g., Chihuahua, Domestic Shorthair)',
+    'pet_size_medium' => 'Medium (e.g., Beagle, Cocker Spaniel)',
+    'pet_size_large' => 'Large (e.g., Labrador, German Shepherd)',
+    'pet_size_extra_large' => 'Extra Large (e.g., Great Dane, Maine Coon)',
+    'label_pet_weight_kg' => 'Weight (kg, Optional)',
+    'add_pet_section_characteristics' => 'Characteristics & Care',
+    'label_pet_personality' => 'Personality Traits (Optional)',
+    'placeholder_pet_personality' => 'e.g., friendly, playful, shy, loves cuddles, very vocal',
+    'help_text_pet_personality' => 'Enter comma-separated traits or a short description.',
+    'label_pet_medical' => 'Medical Conditions (Optional)',
+    'placeholder_pet_medical' => 'e.g., allergies (pollen, chicken), past surgeries, daily medication for arthritis',
+    'label_pet_dietary' => 'Dietary Restrictions (Optional)',
+    'placeholder_pet_dietary' => 'e.g., grain-free, no chicken, specific brand of food, sensitive stomach',
+    'add_pet_section_avatar' => 'Profile Picture',
+    'label_pet_avatar' => 'Upload Avatar (Optional)',
+    'help_text_pet_avatar' => 'Max 2MB. Recommended: square image. JPG, PNG, GIF allowed.',
+    'alt_pet_avatar_preview' => "Pet's avatar preview",
+    'button_add_pet_submit' => 'Add This Pet',
+    'add_pet_alert_success' => 'Pet profile added successfully!',
+    'add_pet_alert_failed_unknown' => 'Failed to add pet. Please check the form for errors and try again.',
+    'add_pet_alert_failed_network' => 'A network error occurred while adding your pet. Please check your connection and try again.',
+
+    // Add Pet API (api/v1/pets/create.php) - specific API messages
+    'error_pet_name_required' => "Pet's name is required.",
+    'error_pet_name_too_long' => "Pet's name cannot exceed 100 characters.",
+    'error_pet_species_required' => 'Please select a species for your pet.',
+    'error_pet_species_invalid' => 'The selected species is not valid.',
+    'error_pet_breed_too_long' => 'Breed information cannot exceed 100 characters.',
+    'error_pet_size_invalid' => 'The selected size is not valid.',
+    'error_pet_weight_invalid' => 'Please enter a valid weight for your pet (e.g., 5.5). It must be a positive number.',
+    'error_pet_birthdate_invalid_format' => 'Invalid birthdate format. Please use YYYY-MM-DD.',
+    'error_pet_birthdate_future' => "Pet's birthdate cannot be in the future.",
+    'error_pet_avatar_upload_failed_code_1' => 'The uploaded avatar exceeds the maximum allowed file size (server limit).',
+    'error_pet_avatar_upload_failed_code_2' => 'The uploaded avatar exceeds the maximum allowed file size (form limit).',
+    'error_pet_avatar_upload_failed_code_3' => 'The avatar was only partially uploaded. Please try again.',
+    'error_pet_avatar_upload_failed_code_4' => 'No avatar file was selected for upload.', // More accurate for UPLOAD_ERR_NO_FILE
+    'error_pet_avatar_upload_failed_code_6' => 'Server error: Missing a temporary folder for avatar upload.',
+    'error_pet_avatar_upload_failed_code_7' => 'Server error: Failed to write avatar file to disk.',
+    'error_pet_avatar_upload_failed_generic' => 'An error occurred during avatar upload. Please try again.',
+    'add_pet_api_success' => 'New pet profile created successfully!',
+    'add_pet_api_failed_db' => 'Failed to create pet profile due to a database error. Please try again later.',
+
+    // Profile Update API (api/v1/user/profile-update.php)
+    'error_profile_update_mismatch' => 'Profile update authorization failed. Please ensure you are logged in correctly.',
+    // 'error_username_taken' is reused
+    'error_language_preference_required' => 'Language preference is required.',
+    'error_language_preference_invalid' => 'The selected language is not supported.',
+    'error_timezone_required' => 'Timezone selection is required.',
+    'error_timezone_invalid' => 'The selected timezone is not valid.',
+    'error_current_password_required_for_change' => 'Your current password is required to set a new one.',
+    'error_current_password_incorrect' => 'The current password you entered is incorrect.',
+    'profile_update_no_changes' => 'No changes were detected in your profile information.',
+    'profile_update_success' => 'Your profile has been updated successfully!',
+    'profile_update_failed_db' => 'Failed to update your profile due to a database error. Please try again.',
+    'profile_update_language_changed_refresh_note' => 'Language preference changed. The page will reload in 3 seconds to apply changes.',
+    'profile_update_failed_generic_error' => 'Profile update failed. Please review the errors below or try again.',
+    'profile_update_failed_network' => 'A network error occurred while updating your profile. Please check your connection and try again.',
+
+    // Recognize Business API (api/v1/business/recognize.php)
+    'error_invalid_business_id_provided' => 'Invalid or missing business ID.',
+    'error_business_id_not_found_or_inactive' => 'The specified business could not be found or is not currently active.',
+    'error_recognition_type_required' => 'Recognition type is required.', // Should not occur with default
+    'error_recognition_type_too_long' => 'Recognition type value is too long (max 50 characters).',
+    'error_comment_too_long' => 'Your comment exceeds the maximum length of 1000 characters.',
+    'error_business_already_recognized' => 'You have already recognized this business. Thank you for your support!',
+    'error_business_already_recognized_concurrent' => "It appears you've just recognized this business, or another recognition was processed simultaneously. Thanks!",
+    'success_business_recognized' => 'Thank you for recognizing this business! Your feedback helps our community.',
+
+    // File Upload Function (handle_file_upload in functions.php)
+    'error_upload_no_file_input_name' => 'File input configuration error on server.',
+    'error_upload_err_ini_size' => 'The uploaded file exceeds the maximum allowed file size set on the server.',
+    'error_upload_err_form_size' => 'The uploaded file exceeds the maximum file size specified in the form.',
+    'error_upload_err_partial' => 'The file was only partially uploaded. Please try again.',
+    'error_upload_err_no_file' => 'No file was uploaded, or the file field was empty.',
+    'error_upload_err_no_tmp_dir' => 'Server configuration error: Missing a temporary folder for uploads.',
+    'error_upload_err_cant_write' => 'Server error: Failed to write the uploaded file to disk.',
+    'error_upload_err_extension' => 'A PHP extension stopped the file upload. Please contact support.',
+    'error_upload_unknown' => 'An unknown error occurred during file upload.',
+    'error_upload_processing_not_implemented' => 'File upload processing is not yet fully implemented.',
+    'success_upload_file_saved' => 'File uploaded successfully.', // For future use
+    'error_upload_move_failed' => 'Could not save the uploaded file.', // For future use
+    'error_upload_invalid_type' => 'Invalid file type. Allowed types are: %s.', // For future use, %s for allowed types
+    'error_upload_too_large' => 'File is too large. Maximum allowed size is %s MB.', // For future use, %s for size
+
     // Add more translations as features are developed...
 ];
