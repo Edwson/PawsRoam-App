@@ -266,6 +266,27 @@ return [
     'admin_link_disabled_tooltip' => 'This feature is under development and will be available soon!',
     'admin_dashboard_links_stub_note' => '(Note: Management links are placeholders for upcoming features.)',
 
+    // Forum Category View Page (pages/forums/category-view.php)
+    'page_title_forum_category_default' => 'Forum Category',
+    'error_forum_no_category_slug_provided' => 'No category specified to display.',
+    'error_forum_category_not_found' => 'The requested forum category was not found.',
+    'page_title_forum_category' => 'Forum Category', // Used as suffix: "[Category Name] - Forum Category"
+    'button_back_to_forums_main' => 'Back to Main Forums',
+    'breadcrumb_pawsconnect_home' => 'PawsConnect', // Or just "Forums"
+    'tooltip_start_new_topic_in_category_soon %s' => 'Start a new discussion topic in %s (Feature coming soon)',
+    'button_new_topic' => 'New Topic',
+    'forum_category_no_topics_title' => 'No Topics Yet!',
+    'forum_category_no_topics_message' => 'There are no topics in this category yet. Be the first to start a discussion!',
+    'tooltip_be_the_first_to_post_topic_soon' => 'Be the first to post a topic in this category! (Feature coming soon)',
+    'button_start_first_topic' => 'Start the First Topic',
+    'topic_sticky_tooltip' => 'Sticky Topic',
+    'topic_locked_tooltip' => 'Locked Topic (No new replies)',
+    '%d views' => '%d views',
+    'topic_started_by %s' => 'Started by %s', // %s for username
+    '%d replies' => '%d replies',
+    'topic_last_post_by %s' => 'Last post by %s', // %s for username
+    'topic_no_replies_yet' => 'No replies yet',
+
     // Add Pet Page (pages/pets/add-pet.php)
     'page_title_add_pet' => 'Add New Pet Profile',
     'button_back_to_my_pets' => 'Back to My Pets',
@@ -549,6 +570,36 @@ return [
     // Let's add a specific one for review display if needed:
     'review_rating_display %d/5' => '%d/5 Stars', // For displayed review rating, e.g. "4/5 Stars"
 
+    // PawsConnect Main Page (pages/pawsconnect.php)
+    'page_title_pawsconnect_main' => 'PawsConnect Community Forums',
+    'error_forums_load_failed_db' => 'Could not load forum categories due to a database error. Please try again later.',
+    'error_forums_not_setup_yet' => 'Our community forums are currently under construction. Please check back soon!',
+    'tooltip_start_new_discussion_soon' => 'Start a new discussion topic (Feature coming soon)',
+    'button_start_new_discussion' => 'Start New Discussion',
+    'button_login_to_participate' => 'Login to Participate',
+    'forums_no_categories_title' => 'No Forum Categories Yet!',
+    'forums_no_categories_message' => 'It seems there are no discussion categories available at the moment. Please check back later or contact an administrator if you believe this is an error.',
+    'forums_welcome_intro' => 'Welcome to the PawsConnect community! Find discussions, share advice, and connect with other pet lovers.',
+    '%d topics / %d posts' => '%d topics / %d posts', // For category stats (future)
+    'forum_category_no_description' => 'No description available for this category.',
+
+    // Forum Topic View Page (pages/forums/topic-view.php)
+    'page_title_forum_topic_default' => 'View Topic',
+    'error_forum_no_topic_slug_provided' => 'No topic specified to display.',
+    'error_forum_topic_not_found' => 'The requested discussion topic was not found.',
+    'error_forums_topic_load_failed_db' => 'Could not load the topic details due to a database error.',
+    'tooltip_reply_to_topic_soon' => 'Reply to this topic (Feature coming soon)',
+    'button_reply_to_topic' => 'Reply to Topic',
+    'topic_is_locked_message' => 'This topic is locked. No new replies can be posted.',
+    'forum_topic_no_posts_yet' => 'This topic has no posts yet.',
+    'forum_topic_be_first_to_reply' => 'Be the first to reply!',
+    'forum_topic_reply_form_title' => 'Post a Reply',
+    'forum_topic_locked_cannot_reply' => 'This topic is locked. No new replies can be posted.',
+    'forum_topic_reply_placeholder' => 'Enter your reply...',
+    'forum_topic_markdown_supported_note' => 'Basic Markdown is supported. (Feature coming soon)',
+    'button_submit_reply' => 'Submit Reply',
+    'forum_reply_feature_stub_note' => '(Reply functionality is a stub for now)',
+    'forum_topic_login_to_reply %s' => '%s to post a reply.', // %s is login link
 
     // Add more translations as features are developed...
 ];

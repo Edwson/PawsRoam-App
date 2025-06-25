@@ -176,6 +176,28 @@ if (array_key_exists($requestedPath, $routes)) {
             error_log("Routing error: Pet page for action '{$action}' with ID '{$pet_id}' not found. File: " . ($filePath ?? 'N/A'));
         }
     }
+    // Forum Category View: /forums/category/{category_slug}
+    elseif (preg_match('#^/forums/category/([a-zA-Z0-9_-]+)$#', $requestedPath, $matches)) {
+        $_GET['category_slug'] = $matches[1];
+        $filePath = BASE_PATH . DS . 'pages' . DS . 'forums' . DS . 'category-view.php';
+        if (file_exists($filePath)) {
+            $pageToLoad = $filePath;
+            $pageFound = true;
+        } else {
+            error_log("Routing error: category-view.php not found for slug '{$matches[1]}'.");
+        }
+    }
+    // Forum Topic View: /forums/topic/{topic_slug} (or /forums/{cat_slug}/{topic_slug} if preferred, but simpler for now)
+    elseif (preg_match('#^/forums/topic/([a-zA-Z0-9_-]+)$#', $requestedPath, $matches)) {
+        $_GET['topic_slug'] = $matches[1];
+        $filePath = BASE_PATH . DS . 'pages' . DS . 'forums' . DS . 'topic-view.php';
+        if (file_exists($filePath)) {
+            $pageToLoad = $filePath;
+            $pageFound = true;
+        } else {
+            error_log("Routing error: topic-view.php not found for slug '{$matches[1]}'.");
+        }
+    }
     // Example for /pets/add, /pets/edit/{id}, /pets/view/{id} (for future)
     // elseif (preg_match('#^/pets/add$#', $requestedPath)) {
     //     // $filePath = BASE_PATH . DS . 'pages' . DS . 'pets' . DS . 'add-edit-pet.php'; // Assuming a combined add/edit form
