@@ -118,5 +118,66 @@ CREATE TABLE user_pets (
     emergency_contacts JSON,
     avatar_path VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE -- Added ON DELETE CASCADE for user_pets
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- PawsConnect Forum Tables
+
+CREATE TABLE forum_categories (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    slug VARCHAR(120) NOT NULL,
+    description TEXT NULL DEFAULT NULL,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- For translated names/descriptions, use the 'translations' table:
+    -- translatable_type = 'forum_category', translatable_id = id, field_name = 'name'/'description'
+    UNIQUE KEY uk_forum_category_slug (slug),
+    UNIQUE KEY uk_forum_category_name (name)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Forum categories for organizing discussions';
+
+CREATE TABLE forum_topics (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    category_id INT NOT NULL,
+    user_id INT NULL DEFAULT NULL,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(270) NOT NULL,
+    content_preview TEXT NULL DEFAULT NULL,
+    last_post_id INT NULL DEFAULT NULL,
+    post_count INT DEFAULT 0 COMMENT 'Total posts in this topic, including the initial one',
+    view_count INT DEFAULT 0,
+    is_sticky BOOLEAN DEFAULT FALSE,
+    is_locked BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES forum_categories(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    UNIQUE KEY uk_forum_topic_slug (slug)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Discussion topics within forum categories';
+
+CREATE TABLE forum_posts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    topic_id INT NOT NULL,
+    user_id INT NULL DEFAULT NULL,
+    parent_post_id INT NULL DEFAULT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL DEFAULT NULL,
+    ip_address VARCHAR(45) NULL,
+    FOREIGN KEY (topic_id) REFERENCES forum_topics(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (parent_post_id) REFERENCES forum_posts(id) ON DELETE SET NULL
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Individual posts within forum topics';
+
+-- Add the foreign key for last_post_id in forum_topics after forum_posts is created
+ALTER TABLE forum_topics
+ADD CONSTRAINT fk_forum_topics_last_post
+FOREIGN KEY (last_post_id) REFERENCES forum_posts(id)
+ON DELETE SET NULL;
+
+-- Indexes for performance
+CREATE INDEX idx_forum_topics_category_updated ON forum_topics(category_id, updated_at DESC);
+CREATE INDEX idx_forum_posts_topic_created ON forum_posts(topic_id, created_at ASC);
+CREATE INDEX idx_forum_posts_user ON forum_posts(user_id);
+CREATE INDEX idx_forum_topics_user ON forum_topics(user_id);
