@@ -8,7 +8,11 @@ CREATE TABLE users (
     language_preference VARCHAR(5) DEFAULT 'en',
     timezone VARCHAR(50) DEFAULT 'UTC',
     status ENUM('active', 'pending', 'suspended') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- Keep track of updates
+    -- For "Remember Me" functionality
+    remember_token_hash VARCHAR(255) NULL DEFAULT NULL,
+    remember_token_expires_at TIMESTAMP NULL DEFAULT NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Businesses with detailed pet policies
