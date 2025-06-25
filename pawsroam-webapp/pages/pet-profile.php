@@ -19,15 +19,27 @@ $pageTitle = __('page_title_pet_profiles', [], $GLOBALS['current_language'] ?? '
 //     $pets = [];
 //     $page_error_message = __('error_pet_profiles_load_failed_db', [], $GLOBALS['current_language'] ?? 'en');
 // }
-$pets = []; // Stub: No pets fetched for now, so the "none found" message will show.
-$page_error_message = null; // Stub: No error for now.
+// $pets = []; // Stub: No pets fetched for now, so the "none found" message will show.
+$page_error_message = null;
+
+try {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->prepare("SELECT id, name, species, breed, avatar_path FROM user_pets WHERE user_id = :user_id ORDER BY name ASC");
+    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $pets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    error_log("Database error fetching pet profiles for user ID {$user_id}: " . $e->getMessage());
+    $pets = [];
+    $page_error_message = __('error_pet_profiles_load_failed_db', [], $GLOBALS['current_language'] ?? 'en');
+}
 
 ?>
 
 <div class="container my-4 my-md-5">
     <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
         <h1 class="display-6 fw-bold"><?php echo e($pageTitle); ?></h1>
-        <a href="<?php echo e(base_url('/pets/add')); ?>" class="btn btn-primary btn-lg shadow-sm disabled" title="<?php echo e(__('tooltip_add_new_pet', [], $GLOBALS['current_language'] ?? 'en')); ?>" aria-disabled="true">
+        <a href="<?php echo e(base_url('/pets/add')); ?>" class="btn btn-primary btn-lg shadow-sm" title="<?php echo e(__('tooltip_add_new_pet_now', [], $GLOBALS['current_language'] ?? 'en')); // "Add a new pet to your profile" ?>">
             <i class="bi bi-plus-circle-fill me-2"></i><?php echo e(__('button_add_new_pet', [], $GLOBALS['current_language'] ?? 'en')); ?>
         </a>
     </div>
@@ -147,21 +159,57 @@ document.addEventListener('DOMContentLoaded', function() {
             modalText.textContent = bodyString.replace('%s', escapeHtml(petName));
 
             if(petIdInput) petIdInput.value = petId;
-
-            // Enable delete button if it was disabled (for stub only, real app would enable it)
-            // if(confirmDeleteButton) confirmDeleteButton.disabled = false;
+            if(confirmDeleteButton) confirmDeleteButton.disabled = false; // Ensure button is enabled
         });
 
-        // const deletePetForm = document.getElementById('deletePetForm');
-        // if (deletePetForm && document.getElementById('confirmDeletePetButton').disabled === false) { // Only if button is active
-        //     deletePetForm.addEventListener('submit', async function(e) {
-        //         e.preventDefault();
-        //         // Actual API call to delete pet
-        //         // ...
-        //         // bootstrap.Modal.getInstance(deletePetModalElement).hide();
-        //         // Show success/error message, refresh list via JS or page reload
-        //     });
-        // }
+        const deletePetForm = document.getElementById('deletePetForm');
+        if (deletePetForm) {
+            deletePetForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const confirmDeleteButton = deletePetModalElement.querySelector('#confirmDeletePetButton');
+                const originalButtonText = confirmDeleteButton.innerHTML; // Preserve original text
+                const petIdToDelete = deletePetModalElement.querySelector('#deletePetIdInput').value;
+
+                confirmDeleteButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <?php echo e(addslashes(__('state_text_processing', [], $GLOBALS['current_language'] ?? 'en'))); ?>`;
+                confirmDeleteButton.disabled = true;
+
+                const formData = new FormData(deletePetForm);
+                // formData.append('pet_id', petIdToDelete); // Already in hidden input
+
+                try {
+                    const response = await fetch(deletePetForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {'Accept': 'application/json'}
+                    });
+                    const result = await response.json();
+
+                    // Hide the modal regardless of outcome, messages will be shown on page
+                    const modalInstance = bootstrap.Modal.getInstance(deletePetModalElement);
+                    if (modalInstance) modalInstance.hide();
+
+                    if (response.ok && result.success) {
+                        // Simple alert for now, then reload the page to reflect the change.
+                        // A more sophisticated UI would remove the item from the list dynamically.
+                        alert(result.message || '<?php echo e(addslashes(__('success_pet_profile_deleted_js_alert', [], $GLOBALS['current_language'] ?? 'en' ))); // "Pet profile deleted successfully." ?>');
+                        window.location.reload();
+                    } else {
+                        // Display error message (e.g., in a global message area or as an alert)
+                        alert(result.message || '<?php echo e(addslashes(__('error_pet_delete_failed_js_alert', [], $GLOBALS['current_language'] ?? 'en' ))); // "Failed to delete pet profile. Please try again." ?>');
+                    }
+                } catch (error) {
+                    console.error("Delete pet submission error:", error);
+                    const modalInstance = bootstrap.Modal.getInstance(deletePetModalElement);
+                    if (modalInstance) modalInstance.hide();
+                    alert('<?php echo e(addslashes(__('error_pet_delete_network_js_alert', [], $GLOBALS['current_language'] ?? 'en' ))); // "An error occurred. Please check your connection and try again." ?>');
+                } finally {
+                    // Restore button if not reloading, but we are reloading on success.
+                    // If there was an error and no reload, restore button:
+                    // confirmDeleteButton.innerHTML = originalButtonText;
+                    // confirmDeleteButton.disabled = false;
+                }
+            });
+        }
     }
     function escapeHtml(unsafe) {
         if (typeof unsafe !== 'string') return '';

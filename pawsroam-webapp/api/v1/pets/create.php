@@ -142,29 +142,37 @@ $dietary_restrictions_json = prepare_json_field($dietary_restrictions);
 
 // --- Avatar File Handling (Stub - No actual saving in this step) ---
 $avatar_db_path = null; // Default to NULL
-if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-    // File was uploaded successfully by the client
-    $file_name = $_FILES['avatar']['name'];
-    $file_tmp_name = $_FILES['avatar']['tmp_name'];
-    $file_size = $_FILES['avatar']['size'];
-    $file_type = $_FILES['avatar']['type'];
 
-    error_log("Add Pet API: Avatar file received - Name: {$file_name}, Type: {$file_type}, Size: {$file_size} bytes. Path: {$file_tmp_name}. (File processing deferred)");
+// --- Avatar File Handling (Using the full handle_file_upload function) ---
+if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] !== UPLOAD_ERR_NO_FILE) { // If a file was actually submitted
+    if ($_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+        $target_pet_avatar_dir = 'pet-photos' . DS . $user_id; // e.g., uploads/pet-photos/123/
+        $allowed_mimes = defined('PET_AVATAR_ALLOWED_MIME_TYPES') ? unserialize(PET_AVATAR_ALLOWED_MIME_TYPES) : ['image/jpeg', 'image/png', 'image/gif'];
+        $max_size = (defined('DEFAULT_MAX_UPLOAD_SIZE_MB') ? DEFAULT_MAX_UPLOAD_SIZE_MB * 1024 * 1024 : 2 * 1024 * 1024);
 
-    // TODO in a later step:
-    // 1. Validate file type (e.g., image/jpeg, image/png)
-    // 2. Validate file size (e.g., < 2MB)
-    // 3. Generate a unique filename (to prevent overwrites and for security)
-    // 4. Define target upload directory (e.g., uploads/pet-avatars/user_id/)
-    // 5. Move the uploaded file using move_uploaded_file()
-    // 6. If successful, set $avatar_db_path to the relative path for DB storage.
-    // For now, we just acknowledge it but don't save it.
-    // $avatar_db_path = 'uploads/pet-avatars/placeholder_actual_processing_deferred.jpg'; // Example placeholder path for DB
-} elseif (isset($_FILES['avatar']) && $_FILES['avatar']['error'] !== UPLOAD_ERR_NO_FILE) {
-    // An error occurred with the upload, other than no file being submitted
-    $errors['avatar'] = __('error_pet_avatar_upload_failed_code_' . $_FILES['avatar']['error'], [], $current_api_language); // "File upload failed with error code: X"
-    // Create specific translations for common upload error codes (1-4, 6, 7)
+        $upload_result = handle_file_upload(
+            'avatar',
+            $target_pet_avatar_dir,
+            $allowed_mimes,
+            $max_size,
+            'pet_avatar_' . $user_id . '_' // Filename prefix
+        );
+
+        if ($upload_result['success']) {
+            $avatar_db_path = $upload_result['filepath']; // This is the relative path for DB
+        } else {
+            $errors['avatar'] = $upload_result['message']; // Error message from handle_file_upload
+        }
+    } else {
+        // File was submitted but had a PHP upload error (other than UPLOAD_ERR_NO_FILE)
+        // handle_file_upload itself would catch this if called, but good to be explicit
+        // Or, let handle_file_upload manage all error messages from $_FILES.
+        // The current handle_file_upload will return specific messages for these errors.
+        $upload_result_for_error = handle_file_upload('avatar', 'pet-photos'); // Call to get error message
+        $errors['avatar'] = $upload_result_for_error['message'];
+    }
 }
+// If UPLOAD_ERR_NO_FILE, $avatar_db_path remains null, which is fine for an optional field.
 
 
 // --- Process or Return Errors ---

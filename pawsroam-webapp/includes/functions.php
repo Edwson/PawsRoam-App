@@ -217,78 +217,144 @@ function handle_file_upload($file_input_name, $target_directory,
                             $max_size_bytes = 2097152, /* 2MB default */
                             $new_filename_prefix = 'file_') {
 
-    // Ensure target directory is relative to a secure base path, not directly from user input.
-    // Example: $full_target_dir = (defined('UPLOADS_BASE_PATH') ? UPLOADS_BASE_PATH : BASE_PATH . DS . 'uploads') . DS . trim($target_directory, '/\\');
-    // For this stub, we'll just acknowledge the $target_directory parameter.
+    // Use defined constants for base path and default limits
+    $uploads_base_path = defined('UPLOADS_BASE_PATH') ? UPLOADS_BASE_PATH : BASE_PATH . DS . 'uploads';
+    $default_max_size_bytes = (defined('DEFAULT_MAX_UPLOAD_SIZE_MB') ? DEFAULT_MAX_UPLOAD_SIZE_MB * 1024 * 1024 : 2 * 1024 * 1024);
+
+    // Use passed $max_size_bytes if it's valid, otherwise default.
+    $max_size_bytes = ($max_size_bytes > 0) ? $max_size_bytes : $default_max_size_bytes;
 
     if (!isset($_FILES[$file_input_name])) {
-        return ['success' => false, 'message' => __('error_upload_no_file_input_name', [], $GLOBALS['current_language'] ?? 'en')]; // "No file input found with the specified name."
+        return ['success' => false, 'message' => __('error_upload_no_file_input_name', [], $GLOBALS['current_language'] ?? 'en')];
     }
 
     $file = $_FILES[$file_input_name];
 
-    // Check for basic upload errors first
+    // 1. Check for basic PHP upload errors
     if ($file['error'] !== UPLOAD_ERR_OK) {
         $upload_errors = [
-            UPLOAD_ERR_INI_SIZE   => __('error_upload_err_ini_size', [], $GLOBALS['current_language'] ?? 'en'), // "File exceeds upload_max_filesize directive in php.ini."
-            UPLOAD_ERR_FORM_SIZE  => __('error_upload_err_form_size', [], $GLOBALS['current_language'] ?? 'en'), // "File exceeds MAX_FILE_SIZE directive in HTML form."
-            UPLOAD_ERR_PARTIAL    => __('error_upload_err_partial', [], $GLOBALS['current_language'] ?? 'en'), // "File was only partially uploaded."
-            UPLOAD_ERR_NO_FILE    => __('error_upload_err_no_file', [], $GLOBALS['current_language'] ?? 'en'), // "No file was uploaded." (This means field was there but no file chosen)
-            UPLOAD_ERR_NO_TMP_DIR => __('error_upload_err_no_tmp_dir', [], $GLOBALS['current_language'] ?? 'en'), // "Missing a temporary folder on server."
-            UPLOAD_ERR_CANT_WRITE => __('error_upload_err_cant_write', [], $GLOBALS['current_language'] ?? 'en'), // "Failed to write file to disk on server."
-            UPLOAD_ERR_EXTENSION  => __('error_upload_err_extension', [], $GLOBALS['current_language'] ?? 'en'), // "A PHP extension stopped the file upload."
+            UPLOAD_ERR_INI_SIZE   => __('error_upload_err_ini_size', [], $GLOBALS['current_language'] ?? 'en'),
+            UPLOAD_ERR_FORM_SIZE  => __('error_upload_err_form_size', [], $GLOBALS['current_language'] ?? 'en'),
+            UPLOAD_ERR_PARTIAL    => __('error_upload_err_partial', [], $GLOBALS['current_language'] ?? 'en'),
+            UPLOAD_ERR_NO_FILE    => __('error_upload_err_no_file', [], $GLOBALS['current_language'] ?? 'en'),
+            UPLOAD_ERR_NO_TMP_DIR => __('error_upload_err_no_tmp_dir', [], $GLOBALS['current_language'] ?? 'en'),
+            UPLOAD_ERR_CANT_WRITE => __('error_upload_err_cant_write', [], $GLOBALS['current_language'] ?? 'en'),
+            UPLOAD_ERR_EXTENSION  => __('error_upload_err_extension', [], $GLOBALS['current_language'] ?? 'en'),
         ];
-        $error_message = $upload_errors[$file['error']] ?? __('error_upload_unknown', [], $GLOBALS['current_language'] ?? 'en'); // "Unknown upload error."
+        $error_message = $upload_errors[$file['error']] ?? __('error_upload_unknown', [], $GLOBALS['current_language'] ?? 'en');
         error_log("File upload error for '{$file_input_name}': Code {$file['error']} - {$error_message}. Original name: {$file['name']}");
         return ['success' => false, 'message' => $error_message, 'error_code' => $file['error']];
     }
 
-    // If UPLOAD_ERR_NO_FILE was not the error, but file name is empty, it's also an issue.
-    if (empty($file['name'])) {
+    // UPLOAD_ERR_OK means file is present, so $file['name'] should not be empty.
+    // If it somehow is, or tmp_name is empty, treat as error.
+    if (empty($file['name']) || empty($file['tmp_name'])) {
          return ['success' => false, 'message' => __('error_upload_err_no_file', [], $GLOBALS['current_language'] ?? 'en')];
     }
 
-    // --- STUB: Full validation and processing deferred ---
-    error_log("File '{$file['name']}' received for input '{$file_input_name}'. Type: {$file['type']}, Size: {$file['size']}. Full processing deferred.");
+    // 2. Validate file size
+    if ($file['size'] > $max_size_bytes) {
+        $max_size_mb_for_error = defined('DEFAULT_MAX_UPLOAD_SIZE_MB') ? DEFAULT_MAX_UPLOAD_SIZE_MB : ($max_size_bytes / (1024*1024));
+        $error_message = sprintf(__('error_upload_too_large', [], $GLOBALS['current_language'] ?? 'en'), round($max_size_mb_for_error,1));
+        return ['success' => false, 'message' => $error_message];
+    }
 
-    // Placeholder for actual file validation and saving logic:
-    // 1. Validate MIME type ($file['type']) against $allowed_types.
-    //    Consider using finfo_file for more reliable MIME type detection if available.
-    //    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    //    $actual_mime_type = finfo_file($finfo, $file['tmp_name']);
-    //    finfo_close($finfo);
-    //    if (!in_array($actual_mime_type, $allowed_types)) { ... error ... }
+    // 3. Validate MIME type (more reliable than $_FILES['type'])
+    if (function_exists('finfo_open')) {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $actual_mime_type = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
 
-    // 2. Validate file size ($file['size']) against $max_size_bytes.
-    //    if ($file['size'] > $max_size_bytes) { ... error ... }
+        // Unserialize $allowed_types if it's from a constant define('FOO', serialize([...]))
+        $decoded_allowed_types = is_string($allowed_types) ? @unserialize($allowed_types) : $allowed_types;
+        if (!is_array($decoded_allowed_types)) { $decoded_allowed_types = ['image/jpeg', 'image/png', 'image/gif']; } // Fallback
 
-    // 3. Generate a unique and safe filename.
-    //    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-    //    $safe_extension = strtolower($extension); // Sanitize if needed
-    //    $unique_filename = $new_filename_prefix . uniqid() . '_' . time() . '.' . $safe_extension;
+        if (!in_array($actual_mime_type, $decoded_allowed_types, true)) {
+            $allowed_types_str = implode(', ', $decoded_allowed_types);
+            $error_message = sprintf(__('error_upload_invalid_type', [], $GLOBALS['current_language'] ?? 'en'), $allowed_types_str);
+            return ['success' => false, 'message' => $error_message . " (Detected: {$actual_mime_type})"];
+        }
+    } else {
+        // Fallback to $_FILES['type'] if finfo is not available (less secure/reliable)
+        // Log a warning if this fallback is used in production.
+        if (APP_ENV !== 'development') {
+            error_log("Warning: finfo_open is not available. Falling back to less reliable MIME type check for file uploads.");
+        }
+        $decoded_allowed_types = is_string($allowed_types) ? @unserialize($allowed_types) : $allowed_types;
+        if (!is_array($decoded_allowed_types)) { $decoded_allowed_types = ['image/jpeg', 'image/png', 'image/gif']; }
 
-    // 4. Ensure target directory exists and is writable.
-    //    if (!is_dir($full_target_dir)) { mkdir($full_target_dir, 0755, true); } // Create if not exists
-    //    if (!is_writable($full_target_dir)) { ... error ... }
+        if (!in_array($file['type'], $decoded_allowed_types, true)) {
+            $allowed_types_str = implode(', ', $decoded_allowed_types);
+            $error_message = sprintf(__('error_upload_invalid_type', [], $GLOBALS['current_language'] ?? 'en'), $allowed_types_str);
+            return ['success' => false, 'message' => $error_message . " (Reported by browser: {$file['type']})"];
+        }
+    }
 
-    // 5. Move the uploaded file.
-    //    $destination_path = $full_target_dir . DS . $unique_filename;
-    //    if (move_uploaded_file($file['tmp_name'], $destination_path)) {
-    //        return ['success' => true,
-    //                'filepath' => trim($target_directory, '/\\') . '/' . $unique_filename, // Relative path for DB
-    //                'filename' => $unique_filename,
-    //                'message' => __('success_upload_file_saved', [], $GLOBALS['current_language'] ?? 'en')]; // "File uploaded successfully."
-    //    } else {
-    //        return ['success' => false, 'message' => __('error_upload_move_failed', [], $GLOBALS['current_language'] ?? 'en')]; // "Could not move uploaded file."
-    //    }
+    // 4. Generate a unique and safe filename
+    $original_filename = basename($file['name']);
+    $extension = strtolower(pathinfo($original_filename, PATHINFO_EXTENSION));
+    // Basic sanitization for extension, ensure it's one of the expected image types if possible
+    $safe_extensions_map = ['jpg', 'jpeg', 'png', 'gif']; // Whitelist extensions
+    if (!in_array($extension, $safe_extensions_map)) {
+        // If MIME was allowed but extension isn't common, could default or reject
+        // For images, usually MIME is primary, but good to have a sensible extension.
+        // If $actual_mime_type was 'image/jpeg', ensure extension is jpg/jpeg.
+        // This part can be more complex based on strictness. For now, trust $extension from original if MIME passed.
+        // A better approach would be to map MIME to a safe extension.
+        // e.g. if ($actual_mime_type === 'image/jpeg') $extension = 'jpg';
+    }
+    if(empty($extension) && $actual_mime_type === 'image/jpeg') $extension = 'jpg';
+    if(empty($extension) && $actual_mime_type === 'image/png') $extension = 'png';
+    if(empty($extension) && $actual_mime_type === 'image/gif') $extension = 'gif';
+    if(empty($extension)){ // Still no extension, reject
+        return ['success' => false, 'message' => __('error_upload_unknown_file_type', [], $GLOBALS['current_language'] ?? 'en')]; // "Unknown file type or missing extension."
+    }
 
-    // Current stub behavior:
-    return [
-        'success' => false, // Set to true if you want to simulate success for UI testing, but no file is actually saved.
-        'message' => __('error_upload_processing_not_implemented', [], $GLOBALS['current_language'] ?? 'en'), // "File upload processing is not yet fully implemented."
-        'filepath' => null, // No file saved yet
-        'filename' => null  // No file saved yet
-    ];
+
+    // Use a more robust unique name generator
+    try {
+        $unique_filename_stem = $new_filename_prefix . bin2hex(random_bytes(8)) . '_' . time();
+    } catch (Exception $e) { // Fallback if random_bytes fails
+        $unique_filename_stem = $new_filename_prefix . uniqid('', true) . '_' . time();
+    }
+    $unique_filename = $unique_filename_stem . '.' . $extension;
+
+
+    // 5. Ensure target directory exists and is writable.
+    // $target_directory is relative to $uploads_base_path, e.g., "pet-avatars/123/"
+    $full_target_path = rtrim($uploads_base_path, DS) . DS . trim($target_directory, DS);
+
+    if (!is_dir($full_target_path)) {
+        if (!mkdir($full_target_path, 0755, true)) { // Create recursively with 0755 permissions
+            error_log("File upload error: Failed to create target directory: {$full_target_path}");
+            return ['success' => false, 'message' => __('error_upload_cannot_create_dir', [], $GLOBALS['current_language'] ?? 'en')]; // "Server error: Could not create upload directory."
+        }
+    }
+    if (!is_writable($full_target_path)) {
+        error_log("File upload error: Target directory is not writable: {$full_target_path}");
+        return ['success' => false, 'message' => __('error_upload_dir_not_writable', [], $GLOBALS['current_language'] ?? 'en')]; // "Server error: Upload directory not writable."
+    }
+
+    // 6. Move the uploaded file.
+    $destination_filepath_server = $full_target_path . DS . $unique_filename;
+
+    if (move_uploaded_file($file['tmp_name'], $destination_filepath_server)) {
+        // Filepath for DB should be relative to the UPLOADS_BASE_URL / UPLOADS_BASE_PATH
+        // e.g., if $target_directory was "pet-avatars/123/", and UPLOADS_BASE_URL is "http://.../uploads"
+        // then filepath for DB is "pet-avatars/123/unique_filename.jpg"
+        $db_filepath = trim($target_directory, DS) . '/' . $unique_filename;
+
+        return [
+            'success' => true,
+            'filepath' => $db_filepath, // Relative path for DB storage
+            'filename' => $unique_filename, // Just the filename
+            'full_server_path' => $destination_filepath_server, // For logging or further processing if needed
+            'message' => __('success_upload_file_saved', [], $GLOBALS['current_language'] ?? 'en')
+        ];
+    } else {
+        error_log("File upload error: move_uploaded_file failed for '{$file['tmp_name']}' to '{$destination_filepath_server}'. Check permissions and paths.");
+        return ['success' => false, 'message' => __('error_upload_move_failed', [], $GLOBALS['current_language'] ?? 'en')];
+    }
 }
 
 
