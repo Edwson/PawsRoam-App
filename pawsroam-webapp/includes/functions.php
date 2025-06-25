@@ -358,4 +358,26 @@ function handle_file_upload($file_input_name, $target_directory,
 }
 
 
+/**
+ * Calculates the PawStar rating based on the total number of recognitions.
+ * This is an initial simple logic. Future enhancements could include other factors
+ * like amenities, verified status, review scores etc.
+ *
+ * @param int $total_recognitions The total number of community recognitions for a business.
+ * @return int The calculated PawStar rating (0, 1, 2, or 3 stars).
+ */
+function calculate_pawstar_rating($total_recognitions) {
+    $recognitions = (int)$total_recognitions;
+
+    if ($recognitions >= 300) { // 300+ recognitions + exceptional service (service check is future)
+        return 3; // 3 Stars
+    } elseif ($recognitions >= 100) { // 100+ recognitions + extra amenities (amenities check is future)
+        return 2; // 2 Stars
+    } elseif ($recognitions >= 30) { // 30+ community recognitions
+        return 1; // 1 Star
+    } else {
+        return 0; // 0 Stars (Nominee or not yet rated)
+    }
+}
+
 ?>

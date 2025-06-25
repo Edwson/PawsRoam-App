@@ -141,7 +141,20 @@ try {
     $stmt_new_total = $db->prepare("SELECT total_recognitions FROM businesses WHERE id = :business_id");
     $stmt_new_total->bindParam(':business_id', $business_id, PDO::PARAM_INT);
     $stmt_new_total->execute();
-    $new_total_recognitions = $stmt_new_total->fetchColumn();
+    $new_total_recognitions = (int)$stmt_new_total->fetchColumn();
+
+    // 4. Calculate new PawStar rating
+    $new_pawstar_rating = calculate_pawstar_rating($new_total_recognitions);
+
+    // 5. Update pawstar_rating in businesses table
+    $stmt_update_pawstar = $db->prepare(
+        "UPDATE businesses SET pawstar_rating = :pawstar_rating WHERE id = :business_id"
+    );
+    $stmt_update_pawstar->bindParam(':pawstar_rating', $new_pawstar_rating, PDO::PARAM_INT);
+    $stmt_update_pawstar->bindParam(':business_id', $business_id, PDO::PARAM_INT);
+    $stmt_update_pawstar->execute();
+
+    $db->commit();
 
     http_response_code(201); // Created (or 200 OK if preferred for this action)
     echo json_encode([
@@ -149,7 +162,8 @@ try {
         'message' => __('success_business_recognized', [], $current_api_language), // "Thank you for recognizing this business!"
         'recognition_id' => $recognition_id,
         'business_id' => $business_id,
-        'total_recognitions' => (int)$new_total_recognitions
+        'total_recognitions' => $new_total_recognitions,
+        'new_pawstar_rating' => $new_pawstar_rating
     ]);
 
 } catch (PDOException $e) {

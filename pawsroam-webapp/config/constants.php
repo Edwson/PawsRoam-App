@@ -84,6 +84,7 @@ define('UPLOADS_BASE_URL', APP_URL . '/uploads');
 define('DEFAULT_MAX_UPLOAD_SIZE_MB', 2); // Default max file size for uploads in Megabytes (e.g., 2MB)
 // Store allowed MIME types as serialized arrays for easy definition and unserialization in code.
 define('PET_AVATAR_ALLOWED_MIME_TYPES', serialize(['image/jpeg', 'image/png', 'image/gif']));
+define('USER_AVATAR_ALLOWED_MIME_TYPES', serialize(['image/jpeg', 'image/png'])); // Users typically don't need GIF for avatars
 define('BUSINESS_PHOTO_ALLOWED_MIME_TYPES', serialize(['image/jpeg', 'image/png'])); // Example
 
 // --- Search Configuration ---
