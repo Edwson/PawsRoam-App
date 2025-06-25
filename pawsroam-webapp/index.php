@@ -155,13 +155,33 @@ if (array_key_exists($requestedPath, $routes)) {
             error_log("Routing error: add-pet.php not found for route '/pets/add'.");
         }
     }
-    // Example for /pets/edit/{id}, /pets/view/{id} (for future)
+    // Route for editing or viewing a pet: /pets/edit/{id} or /pets/view/{id}
+    elseif (preg_match('#^/pets/(edit|view)/([0-9]+)$#', $requestedPath, $matches)) {
+        $action = $matches[1]; // 'edit' or 'view'
+        $pet_id = (int)$matches[2];
+        $_GET['id'] = $pet_id; // Pass pet_id as 'id' to the page script
+
+        if ($action === 'edit') {
+            $filePath = BASE_PATH . DS . 'pages' . DS . 'pets' . DS . 'edit-pet.php';
+        } elseif ($action === 'view') {
+            $filePath = BASE_PATH . DS . 'pages' . DS . 'pets' . DS . 'view-pet.php';
+        }
+        // else: action unknown, will fall through to 404 if $filePath not set
+
+        if (isset($filePath) && file_exists($filePath)) {
+            $pageToLoad = $filePath;
+            $pageFound = true;
+        } else {
+            error_log("Routing error: Pet page for action '{$action}' with ID '{$pet_id}' not found. File: " . ($filePath ?? 'N/A'));
+        }
+    }
+    // Example for /pets/add, /pets/edit/{id}, /pets/view/{id} (for future)
     // elseif (preg_match('#^/pets/add$#', $requestedPath)) {
     //     // $filePath = BASE_PATH . DS . 'pages' . DS . 'pets' . DS . 'add-edit-pet.php'; // Assuming a combined add/edit form
     //     // $_GET['action'] = 'add';
     //     // if (file_exists($filePath)) { $pageToLoad = $filePath; $pageFound = true; }
     // }
-    elseif (preg_match('#^/pets/(edit|view)/([0-9]+)$#', $requestedPath, $matches)) {
+    // elseif (preg_match('#^/pets/(edit|view)/([0-9]+)$#', $requestedPath, $matches)) {
         // $action = $matches[1]; // 'edit' or 'view'
         // $pet_id = (int)$matches[2];
         // $_GET['action'] = $action;

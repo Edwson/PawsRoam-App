@@ -92,15 +92,15 @@ try {
                                 </div>
                             </div>
                             <div class="mt-2 mt-md-0 text-md-end">
-                                <a href="<?php echo e(base_url('/pets/view/' . $pet['id'])); ?>" class="btn btn-sm btn-outline-info me-1 disabled" title="<?php echo e(sprintf(__('tooltip_view_pet %s', [], $GLOBALS['current_language'] ?? 'en'), e($pet['name']))); ?>" aria-disabled="true">
+                                <a href="<?php echo e(base_url('/pets/view/' . $pet['id'])); ?>" class="btn btn-sm btn-outline-info me-1" title="<?php echo e(sprintf(__('tooltip_view_pet_profile %s', [], $GLOBALS['current_language'] ?? 'en'), e($pet['name']))); ?>">
                                     <i class="bi bi-eye-fill"></i> <?php echo e(__('button_view', [], $GLOBALS['current_language'] ?? 'en')); ?>
                                 </a>
-                                <a href="<?php echo e(base_url('/pets/edit/' . $pet['id'])); ?>" class="btn btn-sm btn-outline-primary me-1 disabled" title="<?php echo e(sprintf(__('tooltip_edit_pet %s', [], $GLOBALS['current_language'] ?? 'en'), e($pet['name']))); ?>" aria-disabled="true">
+                                <a href="<?php echo e(base_url('/pets/edit/' . $pet['id'])); ?>" class="btn btn-sm btn-outline-primary me-1" title="<?php echo e(sprintf(__('tooltip_edit_pet_profile %s', [], $GLOBALS['current_language'] ?? 'en'), e($pet['name']))); ?>">
                                     <i class="bi bi-pencil-fill"></i> <?php echo e(__('button_edit', [], $GLOBALS['current_language'] ?? 'en')); ?>
                                 </a>
-                                <button type="button" class="btn btn-sm btn-outline-danger disabled"
+                                <button type="button" class="btn btn-sm btn-outline-danger"
                                         data-bs-toggle="modal" data-bs-target="#deletePetModal"
-                                        data-pet-id="<?php echo e($pet['id']); ?>" data-pet-name="<?php echo e(e($pet['name'])); ?>" title="<?php echo e(sprintf(__('tooltip_delete_pet %s', [], $GLOBALS['current_language'] ?? 'en'), e($pet['name']))); ?>" aria-disabled="true">
+                                        data-pet-id="<?php echo e($pet['id']); ?>" data-pet-name="<?php echo e(e($pet['name'])); ?>" title="<?php echo e(sprintf(__('tooltip_delete_pet_profile %s', [], $GLOBALS['current_language'] ?? 'en'), e($pet['name']))); ?>">
                                     <i class="bi bi-trash-fill"></i> <?php echo e(__('button_delete', [], $GLOBALS['current_language'] ?? 'en')); ?>
                                 </button>
                             </div>

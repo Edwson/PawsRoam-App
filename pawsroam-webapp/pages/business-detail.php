@@ -91,7 +91,7 @@ if (empty($pageTitle) && $error_message) {
                                     <i class="bi <?php echo ($i <= (int)$business_data['pawstar_rating']) ? 'bi-star-fill text-warning' : 'bi-star text-body-tertiary'; ?>"></i>
                                 <?php endfor; ?>
                             </span>
-                            <span class="me-3"><i class="bi bi-award me-1"></i><?php echo e($business_data['total_recognitions'] ?? 0); ?> <?php echo e(__('recognitions_text', [], $GLOBALS['current_language'] ?? 'en')); ?></span>
+                            <span class="me-3"><i class="bi bi-award me-1"></i><span id="totalRecognitionsCount"><?php echo e($business_data['total_recognitions'] ?? 0); ?></span> <?php echo e(__('recognitions_text', [], $GLOBALS['current_language'] ?? 'en')); ?></span>
                             <?php /* <span class="me-3"><i class="bi bi-tag me-1"></i> <a href="#" class="text-decoration-none">Cafe</a></span> */ ?>
                         </div>
                         <p class="text-muted fst-italic"><?php echo e(__('address_placeholder_short', [], $GLOBALS['current_language'] ?? 'en')); // "Example: Pawsville, Petland" ?></p>
