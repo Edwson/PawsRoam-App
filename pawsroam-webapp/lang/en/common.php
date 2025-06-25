@@ -212,7 +212,7 @@ return [
 
     // Pet Profile Management Page (pages/pet-profile.php)
     'page_title_pet_profiles' => 'My Pet Profiles',
-    'tooltip_add_new_pet' => 'Add a new pet to your profile (Feature coming soon)', // Kept for reference, but new one used
+    'tooltip_add_new_pet' => 'Add a new pet to your profile (Feature coming soon)', // Kept for reference if needed
     'tooltip_add_new_pet_now' => 'Add a new pet to your profile',
     'button_add_new_pet' => 'Add New Pet',
     'error_pet_profiles_load_failed_db' => 'Could not load your pet profiles due to a database error. Please try again.',
@@ -221,15 +221,15 @@ return [
     'pet_profiles_none_found_message' => "You haven't added any pet profiles yet.",
     'button_add_your_first_pet_link_text' => 'add your first pet profile',
     'pet_profiles_add_one_prompt_html %s' => 'It looks a bit empty here! Why not %s and share details about your furry, feathery, or scaly friend?', // %s is for the link
-    'tooltip_add_first_pet' => 'Add your first pet (Feature coming soon)',
+    'tooltip_add_first_pet' => 'Add your first pet now!', // Updated from "coming soon"
     'button_add_your_first_pet' => 'Add Your First Pet', // Button text if not using the link version
-    'pet_profiles_stub_note' => '(Pet listing and management functionality is currently a stub and will be implemented soon!)',
+    'pet_profiles_stub_note' => '(Pet listing and management functionality is currently a stub and will be implemented soon!)', // This can be removed or updated later
     'pet_avatar_alt %s' => '%s\'s avatar', // %s for pet name
-    'tooltip_view_pet %s' => 'View %s\'s full profile (Coming soon)',
+    'tooltip_view_pet_profile %s' => "View %s's full profile", // Updated from generic "coming soon"
     'button_view' => 'View',
-    'tooltip_edit_pet %s' => 'Edit %s\'s profile (Coming soon)',
+    'tooltip_edit_pet_profile %s' => "Edit %s's profile", // Updated from generic "coming soon"
     // 'button_edit' => 'Edit', // Already have a general 'button_edit'
-    'tooltip_delete_pet %s' => 'Delete %s\'s profile (Coming soon)',
+    'tooltip_delete_pet_profile %s' => "Delete %s's profile", // Updated from generic "coming soon"
     // 'button_delete' => 'Delete', // Already have a general 'button_delete'
     'modal_title_delete_pet_confirm %s' => 'Confirm Deletion of %s', // %s for pet name
     'modal_title_delete_pet_confirm_generic' => 'Confirm Pet Deletion',
@@ -328,6 +328,22 @@ return [
     'add_pet_api_success' => 'New pet profile created successfully!',
     'add_pet_api_failed_db' => 'Failed to create pet profile due to a database error. Please try again later.',
 
+    // Edit Pet Page (pages/pets/edit-pet.php)
+    'page_title_edit_pet' => 'Edit Pet Profile',
+    'page_title_edit_pet_name %s' => 'Edit Profile for %s', // %s is pet name
+    'error_invalid_pet_id_for_edit' => 'No pet specified or invalid ID for editing.',
+    'error_pet_not_found_or_not_owned' => 'Pet profile not found or you do not have permission to edit it.',
+    'edit_pet_form_title' => "Update Your Pet's Details",
+    'edit_pet_section_avatar' => 'Update Profile Picture',
+    'label_pet_avatar_new' => 'Upload New Avatar (Optional)',
+    'edit_pet_current_avatar_label' => 'Current Avatar:',
+    'edit_pet_remove_avatar_checkbox_label' => 'Remove current avatar (will be replaced if new avatar is uploaded)',
+    'alt_new_pet_avatar_preview' => 'New Avatar Preview',
+    'button_update_pet_submit' => 'Update Pet Profile',
+    'edit_pet_alert_success' => 'Pet profile updated successfully!',
+    'edit_pet_alert_failed_unknown' => 'Failed to update pet profile. Please check the form for errors.',
+    'edit_pet_alert_failed_network' => 'A network error occurred while updating the pet profile. Please try again.',
+
     // Profile Update API (api/v1/user/profile-update.php)
     'error_profile_update_mismatch' => 'Profile update authorization failed. Please ensure you are logged in correctly.',
     // 'error_username_taken' is reused
@@ -398,6 +414,24 @@ return [
     'recognize_failed_message_short' => 'Recognition failed.',
     'recognize_button_already_recognized_text' => 'Already Recognized',
     'recognize_failed_network' => 'A network error occurred. Please try again.',
+    'tooltip_already_recognized' => "You've already recognized this place. Thank you!",
+
+    // Edit Pet API (api/v1/pets/update.php)
+    'error_invalid_pet_id_for_edit_api' => 'Invalid pet ID specified for update.',
+    'error_pet_not_found_or_not_owned_api' => 'Pet profile not found, or you are not authorized to edit it.',
+    'edit_pet_no_changes_detected' => 'No changes were detected in the pet profile information.',
+    'edit_pet_api_success' => 'Pet profile updated successfully!',
+    'edit_pet_api_failed_db' => 'Failed to update pet profile due to a database error. Please try again.',
+    // Validation errors (e.g., error_pet_name_required) are often reused from Add Pet API
+
+    // View Pet Page (pages/pets/view-pet.php)
+    'page_title_view_pet_default' => 'View Pet Profile',
+    'error_invalid_pet_id_for_view' => 'No pet specified or invalid ID for viewing.',
+    'error_pet_not_found_or_not_owned_view' => 'Pet profile not found or you do not have permission to view it.',
+    'page_title_view_pet_name %s' => 'Viewing Profile for %s', // %s is pet name
+    'button_edit_this_pet' => 'Edit This Pet',
+    'view_pet_section_details' => 'Pet Details',
+    'pet_age_years_months %d %d' => 'Approx. %d years, %d months old', // %d for years, %d for months
 
     // Add more translations as features are developed...
 ];
